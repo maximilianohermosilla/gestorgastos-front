@@ -88,14 +88,24 @@ export class Reportes implements OnInit {
     }
     return {
       tooltip: { trigger: 'axis' },
-      legend: { data: ['Ingresos', 'Gastos', 'Ahorros'], bottom: 0 },
+      legend: { data: ['Ingresos', 'Gastos', 'Ahorros'], bottom: 0, textStyle: { color: '#a5ddc4' } },
       grid: { left: '3%', right: '4%', bottom: '14%', top: '3%', containLabel: true },
-      xAxis: { type: 'category', data: MESES, boundaryGap: false },
-      yAxis: { type: 'value' },
+      xAxis: {
+        type: 'category',
+        data: MESES,
+        boundaryGap: false,
+        axisLabel: { color: '#a5ddc4' },
+        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { color: '#a5ddc4' },
+        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+      },
       series: [
-        { name: 'Ingresos', type: 'line', smooth: true, data: ingresos, itemStyle: { color: '#2e7d32' }, areaStyle: { opacity: 0.08 } },
-        { name: 'Gastos', type: 'line', smooth: true, data: gastos, itemStyle: { color: '#c62828' }, areaStyle: { opacity: 0.08 } },
-        { name: 'Ahorros', type: 'line', smooth: true, data: ahorros, itemStyle: { color: '#1565c0' }, areaStyle: { opacity: 0.08 } },
+        { name: 'Ingresos', type: 'line', smooth: true, data: ingresos, itemStyle: { color: '#34d399' }, areaStyle: { opacity: 0.08 } },
+        { name: 'Gastos', type: 'line', smooth: true, data: gastos, itemStyle: { color: '#f87171' }, areaStyle: { opacity: 0.08 } },
+        { name: 'Ahorros', type: 'line', smooth: true, data: ahorros, itemStyle: { color: '#38bdf8' }, areaStyle: { opacity: 0.08 } },
       ],
     };
   });
@@ -166,14 +176,15 @@ export class Reportes implements OnInit {
   private donutOption(data: DatoGrafico[], nombre: string): EChartsCoreOption {
     return {
       tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-      legend: { bottom: 0, left: 'center', type: 'scroll' },
+      legend: { bottom: 0, left: 'center', type: 'scroll', textStyle: { color: '#a5ddc4' } },
+      color: ['#34d399', '#2dd4bf', '#6ee7b7', '#5eead4', '#4ade80', '#a7f3d0', '#22d3ee', '#86efac'],
       series: [
         {
           name: nombre,
           type: 'pie',
           radius: ['45%', '70%'],
           center: ['50%', '45%'],
-          itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+          itemStyle: { borderRadius: 6, borderColor: '#0a1e18', borderWidth: 2 },
           label: { show: false },
           data,
         },
@@ -185,9 +196,15 @@ export class Reportes implements OnInit {
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
       grid: { left: '3%', right: '6%', bottom: '3%', top: '3%', containLabel: true },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: data.map((d) => d.name), inverse: true },
-      series: [{ name: nombre, type: 'bar', data: data.map((d) => d.value), itemStyle: { borderRadius: [0, 6, 6, 0] } }],
+      xAxis: {
+        type: 'value',
+        axisLabel: { color: '#a5ddc4' },
+        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+      },
+      yAxis: { type: 'category', data: data.map((d) => d.name), inverse: true, axisLabel: { color: '#a5ddc4' } },
+      series: [
+        { name: nombre, type: 'bar', data: data.map((d) => d.value), itemStyle: { color: '#34d399', borderRadius: [0, 6, 6, 0] } },
+      ],
     };
   }
 }

@@ -2,18 +2,29 @@
 @use '@angular/material' as mat;
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
+
   @include mat.theme(
     (
       color: (
-        theme-type: light,
+        theme-type: dark,
         primary: mat.$green-palette,
-        tertiary: mat.$azure-palette,
+        tertiary: mat.$cyan-palette,
       ),
       typography: Roboto,
       density: 0,
     )
   );
+
+  // Superficies translúcidas (glassmorphism)
+  --mat-sys-surface: rgba(10, 26, 20, 0.65);
+  --mat-sys-surface-dim: rgba(7, 20, 16, 0.6);
+  --mat-sys-surface-bright: rgba(22, 60, 46, 0.55);
+  --mat-sys-surface-container-lowest: rgba(7, 20, 16, 0.45);
+  --mat-sys-surface-container-low: rgba(255, 255, 255, 0.04);
+  --mat-sys-surface-container: rgba(255, 255, 255, 0.06);
+  --mat-sys-surface-container-high: rgba(255, 255, 255, 0.08);
+  --mat-sys-surface-container-highest: rgba(255, 255, 255, 0.1);
 }
 
 html,
@@ -24,6 +35,29 @@ body {
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background: var(--mat-sys-surface-container-lowest, #fafbfa);
-  color: var(--mat-sys-on-surface, #1a1a1a);
+  color: #d6f0e4;
+  // Fondo «niebla» (dark green mist)
+  background:
+    radial-gradient(1200px 800px at 15% -10%, rgba(52, 211, 153, 0.14), transparent 60%),
+    radial-gradient(1000px 700px at 100% 10%, rgba(45, 212, 191, 0.1), transparent 55%),
+    radial-gradient(900px 900px at 50% 110%, rgba(20, 90, 60, 0.28), transparent 60%),
+    #071410;
+  background-attachment: fixed;
+}
+
+// Superficies Material con efecto vidrio
+.mat-mdc-card,
+.mat-mdc-dialog-container,
+.mat-mdc-menu-panel,
+.mat-toolbar,
+.mat-sidenav {
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+// El área de contenido deja ver la «niebla» de fondo
+.mat-sidenav-content,
+.mat-drawer-content {
+  background: transparent !important;
 }

@@ -24,35 +24,35 @@
   } @else {
     <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
       <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-gray-500">
-          <mat-icon class="text-emerald-700">trending_up</mat-icon>
+        <div class="flex items-center gap-2 text-mist-200">
+          <mat-icon class="text-income">trending_up</mat-icon>
           <span>Ingresos</span>
         </div>
         <div class="mt-2 text-2xl font-semibold">{{ totalIngresos() | money }}</div>
       </mat-card>
 
       <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-gray-500">
-          <mat-icon class="text-red-700">trending_down</mat-icon>
+        <div class="flex items-center gap-2 text-mist-200">
+          <mat-icon class="text-expense">trending_down</mat-icon>
           <span>Gastos</span>
         </div>
         <div class="mt-2 text-2xl font-semibold">{{ totalGastos() | money }}</div>
       </mat-card>
 
       <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-gray-500">
-          <mat-icon class="text-blue-700">savings</mat-icon>
+        <div class="flex items-center gap-2 text-mist-200">
+          <mat-icon class="text-savings">savings</mat-icon>
           <span>Ahorros</span>
         </div>
         <div class="mt-2 text-2xl font-semibold">{{ totalAhorros() | money }}</div>
       </mat-card>
 
       <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-gray-500">
+        <div class="flex items-center gap-2 text-mist-200">
           <mat-icon>account_balance_wallet</mat-icon>
           <span>Balance</span>
         </div>
-        <div class="mt-2 text-2xl font-semibold" [class.text-red-600]="balance() < 0">
+        <div class="mt-2 text-2xl font-semibold" [class.text-expense]="balance() < 0">
           {{ balance() | money }}
         </div>
       </mat-card>
@@ -112,21 +112,21 @@
           <mat-card-title>Resumen</mat-card-title>
         </mat-card-header>
         <mat-card-content class="flex flex-col gap-3">
-          <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-            <span class="text-gray-500">Total ingresos</span>
+          <div class="flex items-center justify-between border-b border-white/5 pb-2">
+            <span class="text-mist-200">Total ingresos</span>
             <span class="font-semibold">{{ totalIngresos() | money }}</span>
           </div>
-          <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-            <span class="text-gray-500">Total gastos</span>
+          <div class="flex items-center justify-between border-b border-white/5 pb-2">
+            <span class="text-mist-200">Total gastos</span>
             <span class="font-semibold">{{ totalGastos() | money }}</span>
           </div>
-          <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-            <span class="text-gray-500">Total ahorros</span>
+          <div class="flex items-center justify-between border-b border-white/5 pb-2">
+            <span class="text-mist-200">Total ahorros</span>
             <span class="font-semibold">{{ totalAhorros() | money }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="font-semibold">Balance del año</span>
-            <span class="text-lg font-semibold" [class.text-red-600]="balance() < 0">{{ balance() | money }}</span>
+            <span class="text-lg font-semibold" [class.text-expense]="balance() < 0">{{ balance() | money }}</span>
           </div>
         </mat-card-content>
       </mat-card>

@@ -7,7 +7,7 @@ import { SpinnerService } from '../../../core/http/spinner.service';
   imports: [MatProgressSpinnerModule],
   template: `
     @if (spinner.loading()) {
-      <div class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30">
+      <div class="fixed inset-0 z-[2000] flex items-center justify-center bg-mist-950/60">
         <mat-progress-spinner mode="indeterminate" diameter="64" />
       </div>
     }

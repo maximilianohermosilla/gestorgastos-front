@@ -75,7 +75,7 @@
               (click)="togglePagado(item)"
               [attr.aria-label]="item.pagado ? 'Marcar como no pagado' : 'Marcar como pagado'"
             >
-              <mat-icon [class.text-emerald-600]="item.pagado">
+              <mat-icon [class.text-accent]="item.pagado">
                 {{ item.pagado ? 'check_circle' : 'radio_button_unchecked' }}
               </mat-icon>
             </button>

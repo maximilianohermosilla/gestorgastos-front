@@ -61,14 +61,15 @@ export class Dashboard implements OnInit {
 
   readonly donutOption = computed<EChartsCoreOption>(() => ({
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-    legend: { bottom: 0, left: 'center' },
+    legend: { bottom: 0, left: 'center', textStyle: { color: '#a5ddc4' } },
+    color: ['#34d399', '#2dd4bf', '#6ee7b7', '#5eead4', '#4ade80', '#a7f3d0', '#22d3ee', '#86efac'],
     series: [
       {
         name: 'Gastos por categoría',
         type: 'pie',
         radius: ['45%', '70%'],
         center: ['50%', '45%'],
-        itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+        itemStyle: { borderRadius: 6, borderColor: '#0a1e18', borderWidth: 2 },
         label: { show: false },
         data: this.gastosPorCategoria(),
       },
