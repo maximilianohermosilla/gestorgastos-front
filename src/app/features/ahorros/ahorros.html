@@ -1,0 +1,75 @@
+<div class="mx-auto max-w-[900px] p-6">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-2xl font-semibold">Ahorros</h1>
+    <button mat-flat-button color="primary" (click)="abrir()">
+      <mat-icon>add</mat-icon>
+      <span>Nuevo ahorro</span>
+    </button>
+  </div>
+
+  <div class="mb-4 flex flex-wrap items-center gap-3">
+    <mat-form-field appearance="outline" class="w-44">
+      <mat-label>Periodo</mat-label>
+      <input matInput type="month" [formControl]="periodo" (change)="cargar()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="min-w-52 flex-1">
+      <mat-label>Buscar</mat-label>
+      <input matInput (input)="onSearch($event)" placeholder="Descripción" />
+    </mat-form-field>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-8">
+      <mat-progress-spinner mode="indeterminate" diameter="40" />
+    </div>
+  } @else if (!filtered().length) {
+    <mat-card>
+      <app-empty-state icon="savings" message="No hay ahorros para este periodo." />
+    </mat-card>
+  } @else {
+    <mat-card>
+      <table mat-table [dataSource]="filtered()" class="w-full">
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <td mat-cell *matCellDef="let item">{{ item.fecha | dateShort }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="descripcion">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let item">{{ item.descripcion }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="cuenta">
+          <th mat-header-cell *matHeaderCellDef>Cuenta</th>
+          <td mat-cell *matCellDef="let item">{{ item.cuentaNombre ?? item.cuenta?.nombre ?? '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef>Monto</th>
+          <td mat-cell *matCellDef="let item">{{ item.valor | money }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="diferencia">
+          <th mat-header-cell *matHeaderCellDef>Diferencia</th>
+          <td mat-cell *matCellDef="let item">{{ item.diferencia | money }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="w-28 text-right">Acciones</th>
+          <td mat-cell *matCellDef="let item" class="text-right">
+            <button mat-icon-button (click)="abrir(item)" aria-label="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="eliminar(item)" aria-label="Eliminar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+      </table>
+    </mat-card>
+  }
+</div>

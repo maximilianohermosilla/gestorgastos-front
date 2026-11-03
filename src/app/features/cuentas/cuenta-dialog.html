@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>{{ data.item ? 'Editar cuenta' : 'Nueva cuenta' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-[360px] flex-col gap-1 pt-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+      @if (form.controls.nombre.hasError('required')) {
+        <mat-error>El nombre es obligatorio</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de cuenta</mat-label>
+      <mat-select formControlName="idTipoCuenta">
+        @for (t of tiposCuenta(); track t.id) {
+          <mat-option [value]="t.id">{{ t.nombre }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.idTipoCuenta.hasError('min')) {
+        <mat-error>Seleccione un tipo</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tarjeta (opcional)</mat-label>
+      <mat-select formControlName="idTarjeta">
+        <mat-option [value]="0">Sin tarjeta</mat-option>
+        @for (t of tarjetas(); track t.id) {
+          <mat-option [value]="t.id">{{ t.numero }} · {{ t.bancoNombre ?? '' }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="habilitado">Habilitada</mat-checkbox>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()">Guardar</button>
+</mat-dialog-actions>

@@ -1,0 +1,135 @@
+<div class="mx-auto max-w-[1400px] p-6">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-2xl font-semibold">Reportes</h1>
+    <div class="flex flex-wrap items-center gap-3">
+      <mat-form-field appearance="outline" class="w-32">
+        <mat-label>Año</mat-label>
+        <mat-select [formControl]="anio" (selectionChange)="cargar()">
+          @for (a of anios; track a) {
+            <mat-option [value]="a">{{ a }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button (click)="exportar()">
+        <mat-icon>download</mat-icon>
+        <span>Exportar Excel</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-8">
+      <mat-progress-spinner mode="indeterminate" diameter="40" />
+    </div>
+  } @else {
+    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <mat-card class="p-5">
+        <div class="flex items-center gap-2 text-gray-500">
+          <mat-icon class="text-emerald-700">trending_up</mat-icon>
+          <span>Ingresos</span>
+        </div>
+        <div class="mt-2 text-2xl font-semibold">{{ totalIngresos() | money }}</div>
+      </mat-card>
+
+      <mat-card class="p-5">
+        <div class="flex items-center gap-2 text-gray-500">
+          <mat-icon class="text-red-700">trending_down</mat-icon>
+          <span>Gastos</span>
+        </div>
+        <div class="mt-2 text-2xl font-semibold">{{ totalGastos() | money }}</div>
+      </mat-card>
+
+      <mat-card class="p-5">
+        <div class="flex items-center gap-2 text-gray-500">
+          <mat-icon class="text-blue-700">savings</mat-icon>
+          <span>Ahorros</span>
+        </div>
+        <div class="mt-2 text-2xl font-semibold">{{ totalAhorros() | money }}</div>
+      </mat-card>
+
+      <mat-card class="p-5">
+        <div class="flex items-center gap-2 text-gray-500">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <span>Balance</span>
+        </div>
+        <div class="mt-2 text-2xl font-semibold" [class.text-red-600]="balance() < 0">
+          {{ balance() | money }}
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <mat-card class="lg:col-span-2">
+        <mat-card-header>
+          <mat-card-title>Evolución mensual</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div echarts [options]="evolucionOption()" class="h-[320px] w-full"></div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Gastos por categoría</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (gastosCategoriaData().length) {
+            <div echarts [options]="gastosCategoriaOption()" class="h-[300px] w-full"></div>
+          } @else {
+            <app-empty-state icon="pie_chart" message="Sin gastos en este año" />
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Gastos por cuenta</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (gastosCuentaData().length) {
+            <div echarts [options]="gastosCuentaOption()" class="h-[300px] w-full"></div>
+          } @else {
+            <app-empty-state icon="bar_chart" message="Sin gastos en este año" />
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Ingresos por categoría</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (ingresosCategoriaData().length) {
+            <div echarts [options]="ingresosCategoriaOption()" class="h-[300px] w-full"></div>
+          } @else {
+            <app-empty-state icon="pie_chart" message="Sin ingresos en este año" />
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Resumen</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="flex flex-col gap-3">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+            <span class="text-gray-500">Total ingresos</span>
+            <span class="font-semibold">{{ totalIngresos() | money }}</span>
+          </div>
+          <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+            <span class="text-gray-500">Total gastos</span>
+            <span class="font-semibold">{{ totalGastos() | money }}</span>
+          </div>
+          <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+            <span class="text-gray-500">Total ahorros</span>
+            <span class="font-semibold">{{ totalAhorros() | money }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-semibold">Balance del año</span>
+            <span class="text-lg font-semibold" [class.text-red-600]="balance() < 0">{{ balance() | money }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

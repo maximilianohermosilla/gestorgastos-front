@@ -1,0 +1,68 @@
+<div class="mx-auto max-w-[1000px] p-6">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-2xl font-semibold">Suscripciones</h1>
+    <button mat-flat-button color="primary" (click)="abrir()">
+      <mat-icon>add</mat-icon>
+      <span>Nueva suscripción</span>
+    </button>
+  </div>
+
+  <mat-form-field appearance="outline" class="mb-4 w-full max-w-sm">
+    <mat-label>Buscar</mat-label>
+    <input matInput (input)="onSearch($event)" placeholder="Nombre" />
+  </mat-form-field>
+
+  @if (loading()) {
+    <div class="flex justify-center py-8">
+      <mat-progress-spinner mode="indeterminate" diameter="40" />
+    </div>
+  } @else if (!filtered().length) {
+    <mat-card>
+      <app-empty-state icon="event_repeat" message="No hay suscripciones." />
+    </mat-card>
+  } @else {
+    <mat-card>
+      <table mat-table [dataSource]="filtered()" class="w-full">
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let item">{{ item.nombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef>Valor mensual</th>
+          <td mat-cell *matCellDef="let item">{{ item.valorActual | money }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="desde">
+          <th mat-header-cell *matHeaderCellDef>Desde</th>
+          <td mat-cell *matCellDef="let item">{{ item.fechaDesde | dateShort }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="hasta">
+          <th mat-header-cell *matHeaderCellDef>Hasta</th>
+          <td mat-cell *matCellDef="let item">{{ item.fechaHasta | dateShort }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="cuotas">
+          <th mat-header-cell *matHeaderCellDef class="text-center">Cargos</th>
+          <td mat-cell *matCellDef="let item" class="text-center">{{ item.registros?.length ?? 0 }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="w-28 text-right">Acciones</th>
+          <td mat-cell *matCellDef="let item" class="text-right">
+            <button mat-icon-button (click)="abrir(item)" aria-label="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="eliminar(item)" aria-label="Eliminar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+      </table>
+    </mat-card>
+  }
+</div>

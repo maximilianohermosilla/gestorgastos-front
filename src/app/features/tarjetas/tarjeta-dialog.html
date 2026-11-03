@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>{{ data.item ? 'Editar tarjeta' : 'Nueva tarjeta' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-[360px] flex-col gap-1 pt-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Número</mat-label>
+      <input matInput formControlName="numero" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Vencimiento (MM/AA)</mat-label>
+      <input matInput formControlName="vencimiento" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Banco</mat-label>
+      <mat-select formControlName="idBanco">
+        <mat-option [value]="0">Sin banco</mat-option>
+        @for (b of bancos(); track b.id) {
+          <mat-option [value]="b.id">{{ b.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de tarjeta</mat-label>
+      <mat-select formControlName="idTipoTarjeta">
+        <mat-option [value]="0">Sin tipo</mat-option>
+        @for (t of tiposTarjeta(); track t.id) {
+          <mat-option [value]="t.id">{{ t.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="habilitado">Habilitada</mat-checkbox>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()">Guardar</button>
+</mat-dialog-actions>

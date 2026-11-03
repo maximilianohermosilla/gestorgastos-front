@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/*
+ * Fuentes de clases a detectar (Tailwind v4).
+ * Por defecto Tailwind escanea el proyecto automáticamente; se explicitan las
+ * rutas de Angular para garantizar la detección de clases en .html y .ts.
+ */
+@source "./app/**/*.{html,ts}";
+@source "./index.html";

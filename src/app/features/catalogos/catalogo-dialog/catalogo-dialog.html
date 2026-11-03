@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>{{ data.item ? 'Editar' : 'Nuevo' }} {{ data.titulo.toLowerCase() }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-[320px] flex-col gap-1 pt-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+      @if (form.controls.nombre.hasError('required')) {
+        <mat-error>El nombre es obligatorio</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()">Guardar</button>
+</mat-dialog-actions>

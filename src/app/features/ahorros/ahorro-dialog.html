@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ data.item ? 'Editar ahorro' : 'Nuevo ahorro' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-[400px] flex-col gap-1 pt-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción</mat-label>
+      <input matInput formControlName="descripcion" />
+      @if (form.controls.descripcion.hasError('required')) {
+        <mat-error>La descripción es obligatoria</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="grid grid-cols-2 gap-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha</mat-label>
+        <input matInput type="date" formControlName="fecha" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Monto</mat-label>
+        <input matInput type="number" step="0.01" min="0" formControlName="valor" />
+        @if (form.controls.valor.hasError('required')) {
+          <mat-error>Ingrese el monto</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Diferencia</mat-label>
+      <input matInput type="number" step="0.01" formControlName="diferencia" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Cuenta (opcional)</mat-label>
+      <mat-select formControlName="idCuenta">
+        <mat-option [value]="null">Sin cuenta</mat-option>
+        @for (c of cuentas(); track c.id) {
+          <mat-option [value]="c.id">{{ c.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Observaciones</mat-label>
+      <textarea matInput rows="2" formControlName="observaciones"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()">Guardar</button>
+</mat-dialog-actions>

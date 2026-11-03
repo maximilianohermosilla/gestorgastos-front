@@ -1,0 +1,63 @@
+<mat-toolbar class="relative z-10">
+  <button mat-icon-button (click)="sidenav.toggle()" aria-label="Menú">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-icon class="mx-1 text-emerald-600">savings</mat-icon>
+  <span class="text-lg font-semibold">Gestor de Gastos</span>
+  <span class="flex-1"></span>
+
+  <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Cuenta">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <div class="px-4 py-2 text-sm font-medium">{{ userName }}</div>
+    <mat-divider />
+    <button mat-menu-item routerLink="/perfil">
+      <mat-icon>person</mat-icon>
+      <span>Mi perfil</span>
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Cerrar sesión</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-sidenav-container class="flex-1">
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    class="w-60 border-r border-gray-200"
+  >
+    <mat-nav-list>
+      @for (group of navGroups; track $index) {
+        @if (group.titulo) {
+          <div class="px-4 pb-1 pt-4 text-xs font-medium uppercase tracking-wide text-gray-400">
+            {{ group.titulo }}
+          </div>
+        }
+        @for (item of group.items; track item.routerlink) {
+          <a
+            mat-list-item
+            routerLink="{{ item.routerlink }}"
+            routerLinkActive
+            #rla="routerLinkActive"
+            [class.bg-emerald-100]="rla.isActive"
+            [class.text-emerald-900]="rla.isActive"
+            (click)="onNavClick(sidenav)"
+          >
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.nombre }}</span>
+          </a>
+        }
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <main class="min-h-full">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
