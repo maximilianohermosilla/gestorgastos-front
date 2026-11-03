@@ -49,13 +49,19 @@ export class Dashboard implements OnInit {
   readonly balance = computed(() => this.totalIngresos() - this.totalGastos());
 
   readonly gastosPorCategoria = computed(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, { value: number; color?: string }>();
     for (const r of this.registros()) {
       const nombre = r.categoriaGastoNombre ?? 'Otros';
-      map.set(nombre, (map.get(nombre) ?? 0) + r.valor);
+      const entry = map.get(nombre) ?? { value: 0, color: r.categoriaGasto?.color };
+      entry.value += r.valor;
+      map.set(nombre, entry);
     }
     return [...map.entries()]
-      .map(([name, value]) => ({ name, value: Number(value.toFixed(2)) }))
+      .map(([name, { value, color }]) => ({
+        name,
+        value: Number(value.toFixed(2)),
+        itemStyle: color ? { color } : undefined,
+      }))
       .sort((a, b) => b.value - a.value);
   });
 

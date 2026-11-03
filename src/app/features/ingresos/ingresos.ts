@@ -17,8 +17,10 @@ import { CategoriaIngresoService } from '../../core/services/categoria-ingreso.s
 import { IngresoService } from '../../core/services/ingreso.service';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { DateShortPipe } from '../../shared/pipes/date-short.pipe';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { textoContraste } from '../../shared/utils/color';
 import { currentPeriod } from '../../shared/utils/date';
 import { IngresoDialog } from './ingreso-dialog';
 
@@ -38,6 +40,7 @@ import { IngresoDialog } from './ingreso-dialog';
     EmptyState,
     DateShortPipe,
     MoneyPipe,
+    FormPeriodo,
   ],
   templateUrl: './ingresos.html',
 })
@@ -47,7 +50,7 @@ export class Ingresos implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
 
-  readonly periodo = new FormControl<string>(currentPeriod(), { nonNullable: true });
+  readonly periodo = signal(currentPeriod());
   readonly categoria = new FormControl<number | null>(null);
   readonly searchText = signal('');
 
@@ -64,6 +67,8 @@ export class Ingresos implements OnInit {
     }
     return this.items().filter((i) => (i.descripcion ?? '').toLowerCase().includes(term));
   });
+
+  readonly total = computed(() => this.filtered().reduce((s, i) => s + i.valor, 0));
 
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
@@ -88,9 +93,18 @@ export class Ingresos implements OnInit {
     this.searchText.set((e.target as HTMLInputElement).value);
   }
 
+  onPeriodoChange(p: string): void {
+    this.periodo.set(p);
+    this.cargar();
+  }
+
+  colorTexto(hex?: string | null): string {
+    return textoContraste(hex);
+  }
+
   cargar(): void {
     this.loading.set(true);
-    this.service.getAllByUsuario(this.periodo.value, this.categoria.value ?? undefined).subscribe({
+    this.service.getAllByUsuario(this.periodo(), this.categoria.value ?? undefined).subscribe({
       next: (r) => {
         this.items.set(r);
         this.loading.set(false);

@@ -8,10 +8,7 @@
   </div>
 
   <div class="mb-4 flex flex-wrap items-center gap-3">
-    <mat-form-field appearance="outline" class="w-44">
-      <mat-label>Periodo</mat-label>
-      <input matInput type="month" [formControl]="periodo" (change)="cargar()" />
-    </mat-form-field>
+    <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
 
     <mat-form-field appearance="outline" class="min-w-52 flex-1">
       <mat-label>Buscar</mat-label>
@@ -52,7 +49,24 @@
 
         <ng-container matColumnDef="categoria">
           <th mat-header-cell *matHeaderCellDef>Categoría</th>
-          <td mat-cell *matCellDef="let item">{{ item.categoriaIngresoNombre ?? '—' }}</td>
+          <td mat-cell *matCellDef="let item">
+            <div class="flex items-center gap-2">
+              @if (item.categoriaIngreso?.icono) {
+                <span
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                  [style.background-color]="item.categoriaIngreso.color ?? '#1b4f3c'"
+                >
+                  <mat-icon
+                    class="!h-4 !w-4 !text-base leading-none"
+                    [style.color]="colorTexto(item.categoriaIngreso.color)"
+                  >
+                    {{ item.categoriaIngreso.icono }}
+                  </mat-icon>
+                </span>
+              }
+              <span>{{ item.categoriaIngresoNombre ?? item.categoriaIngreso?.nombre ?? '—' }}</span>
+            </div>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="valor">
@@ -75,6 +89,12 @@
         <tr mat-header-row *matHeaderRowDef="columnas"></tr>
         <tr mat-row *matRowDef="let row; columns: columnas"></tr>
       </table>
+
+      <div class="flex items-center justify-between border-t border-white/5 px-4 py-3">
+        <span class="text-sm text-mist-200">Total</span>
+        <span class="font-semibold">{{ total() | money }}</span>
+      </div>
+
       <mat-paginator
         [length]="filtered().length"
         [pageSize]="pageSize()"

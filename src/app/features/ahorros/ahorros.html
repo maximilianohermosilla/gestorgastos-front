@@ -8,10 +8,7 @@
   </div>
 
   <div class="mb-4 flex flex-wrap items-center gap-3">
-    <mat-form-field appearance="outline" class="w-44">
-      <mat-label>Periodo</mat-label>
-      <input matInput type="month" [formControl]="periodo" (change)="cargar()" />
-    </mat-form-field>
+    <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
 
     <mat-form-field appearance="outline" class="min-w-52 flex-1">
       <mat-label>Buscar</mat-label>
@@ -70,6 +67,12 @@
         <tr mat-header-row *matHeaderRowDef="columnas"></tr>
         <tr mat-row *matRowDef="let row; columns: columnas"></tr>
       </table>
+
+      <div class="flex items-center justify-between border-t border-white/5 px-4 py-3">
+        <span class="text-sm text-mist-200">Total</span>
+        <span class="font-semibold">{{ total() | money }}</span>
+      </div>
+
       <mat-paginator
         [length]="filtered().length"
         [pageSize]="pageSize()"

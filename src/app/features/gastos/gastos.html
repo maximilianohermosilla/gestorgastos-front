@@ -8,21 +8,28 @@
   </div>
 
   <div class="mb-4 flex flex-wrap items-center gap-3">
-    <mat-form-field appearance="outline" class="w-44">
-      <mat-label>Periodo</mat-label>
-      <input matInput type="month" [formControl]="periodo" (change)="cargar()" />
-    </mat-form-field>
+    <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
 
     <mat-form-field appearance="outline" class="min-w-52 flex-1">
       <mat-label>Buscar</mat-label>
       <input matInput [formControl]="search" placeholder="Descripción" (input)="cargar()" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="w-48">
+    <mat-form-field appearance="outline" class="w-44">
       <mat-label>Categoría</mat-label>
       <mat-select [formControl]="categoria" (selectionChange)="cargar()">
         <mat-option [value]="null">Todas</mat-option>
         @for (c of categorias(); track c.id) {
+          <mat-option [value]="c.id">{{ c.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-44">
+      <mat-label>Cuenta</mat-label>
+      <mat-select [value]="cuenta()" (selectionChange)="onCuentaChange($event.value)">
+        <mat-option [value]="null">Todas</mat-option>
+        @for (c of cuentas(); track c.id) {
           <mat-option [value]="c.id">{{ c.nombre }}</mat-option>
         }
       </mat-select>
@@ -54,7 +61,24 @@
 
         <ng-container matColumnDef="categoria">
           <th mat-header-cell *matHeaderCellDef>Categoría</th>
-          <td mat-cell *matCellDef="let item">{{ item.categoriaGastoNombre ?? '—' }}</td>
+          <td mat-cell *matCellDef="let item">
+            <div class="flex items-center gap-2">
+              @if (item.categoriaGasto?.icono) {
+                <span
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                  [style.background-color]="item.categoriaGasto.color ?? '#1b4f3c'"
+                >
+                  <mat-icon
+                    class="!h-4 !w-4 !text-base leading-none"
+                    [style.color]="colorTexto(item.categoriaGasto.color)"
+                  >
+                    {{ item.categoriaGasto.icono }}
+                  </mat-icon>
+                </span>
+              }
+              <span>{{ item.categoriaGastoNombre ?? item.categoriaGasto?.nombre ?? '—' }}</span>
+            </div>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="cuenta">
@@ -97,8 +121,14 @@
         <tr mat-header-row *matHeaderRowDef="columnas"></tr>
         <tr mat-row *matRowDef="let row; columns: columnas"></tr>
       </table>
+
+      <div class="flex items-center justify-between border-t border-white/5 px-4 py-3">
+        <span class="text-sm text-mist-200">Total</span>
+        <span class="font-semibold">{{ total() | money }}</span>
+      </div>
+
       <mat-paginator
-        [length]="items().length"
+        [length]="filtered().length"
         [pageSize]="pageSize()"
         [pageIndex]="pageIndex()"
         [pageSizeOptions]="[5, 10, 25, 50]"

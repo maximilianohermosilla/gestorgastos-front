@@ -1,11 +1,8 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption } from 'echarts/core';
 import { forkJoin } from 'rxjs';
@@ -17,6 +14,7 @@ import { IngresoService } from '../../core/services/ingreso.service';
 import { RegistroAhorroService } from '../../core/services/registro-ahorro.service';
 import { RegistroService } from '../../core/services/registro.service';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -24,21 +22,20 @@ const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'O
 interface DatoGrafico {
   name: string;
   value: number;
+  itemStyle?: { color: string };
 }
 
 @Component({
   selector: 'app-reportes',
   imports: [
-    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatProgressSpinnerModule,
     NgxEchartsDirective,
     EmptyState,
     MoneyPipe,
+    FormPeriodo,
   ],
   templateUrl: './reportes.html',
 })
@@ -48,9 +45,7 @@ export class Reportes implements OnInit {
   private readonly ahorroService = inject(RegistroAhorroService);
   private readonly excel = inject(ExcelService);
 
-  readonly currentYear = new Date().getFullYear();
-  readonly anios = Array.from({ length: 6 }, (_, i) => this.currentYear - i);
-  readonly anio = new FormControl<number>(this.currentYear, { nonNullable: true });
+  readonly periodo = signal(String(new Date().getFullYear()));
 
   readonly loading = signal(true);
   private readonly registros = signal<Registro[]>([]);
@@ -62,9 +57,13 @@ export class Reportes implements OnInit {
   readonly totalAhorros = computed(() => this.ahorros().reduce((s, a) => s + a.valor, 0));
   readonly balance = computed(() => this.totalIngresos() - this.totalGastos());
 
-  readonly gastosCategoriaData = computed(() => this.groupBy(this.registros(), (r) => r.categoriaGastoNombre ?? 'Otros'));
+  readonly gastosCategoriaData = computed(() =>
+    this.groupByCategoria(this.registros(), (r) => r.categoriaGastoNombre ?? 'Otros', (r) => r.categoriaGasto?.color),
+  );
   readonly gastosCuentaData = computed(() => this.groupBy(this.registros(), (r) => r.cuenta?.nombre ?? 'Sin cuenta'));
-  readonly ingresosCategoriaData = computed(() => this.groupBy(this.ingresos(), (i) => i.categoriaIngresoNombre ?? 'Otros'));
+  readonly ingresosCategoriaData = computed(() =>
+    this.groupByCategoria(this.ingresos(), (i) => i.categoriaIngresoNombre ?? 'Otros', (i) => i.categoriaIngreso?.color),
+  );
 
   readonly gastosCategoriaOption = computed(() => this.donutOption(this.gastosCategoriaData(), 'Gastos por categoría'));
   readonly ingresosCategoriaOption = computed(() => this.donutOption(this.ingresosCategoriaData(), 'Ingresos por categoría'));
@@ -114,9 +113,14 @@ export class Reportes implements OnInit {
     this.cargar();
   }
 
+  onPeriodoChange(p: string): void {
+    this.periodo.set(p);
+    this.cargar();
+  }
+
   cargar(): void {
     this.loading.set(true);
-    const periodo = String(this.anio.value);
+    const periodo = this.periodo();
     forkJoin([
       this.registroService.getAllByUsuario(periodo),
       this.ingresoService.getAllByUsuario(periodo),
@@ -154,7 +158,7 @@ export class Reportes implements OnInit {
       Monto: a.valor,
       Diferencia: a.diferencia,
     }));
-    this.excel.export({ Gastos: gastos, Ingresos: ingresos, Ahorros: ahorros }, `reporte-${this.anio.value}.xlsx`);
+    this.excel.export({ Gastos: gastos, Ingresos: ingresos, Ahorros: ahorros }, `reporte-${this.periodo()}.xlsx`);
   }
 
   private groupBy<T extends { valor: number }>(items: T[], key: (item: T) => string): DatoGrafico[] {
@@ -165,6 +169,27 @@ export class Reportes implements OnInit {
     }
     return [...map.entries()]
       .map(([name, value]) => ({ name, value: Number(value.toFixed(2)) }))
+      .sort((a, b) => b.value - a.value);
+  }
+
+  private groupByCategoria<T extends { valor: number }>(
+    items: T[],
+    nameKey: (item: T) => string,
+    colorKey: (item: T) => string | undefined,
+  ): DatoGrafico[] {
+    const map = new Map<string, { value: number; color?: string }>();
+    for (const item of items) {
+      const name = nameKey(item);
+      const entry = map.get(name) ?? { value: 0, color: colorKey(item) };
+      entry.value += item.valor;
+      map.set(name, entry);
+    }
+    return [...map.entries()]
+      .map(([name, { value, color }]) => ({
+        name,
+        value: Number(value.toFixed(2)),
+        itemStyle: color ? { color } : undefined,
+      }))
       .sort((a, b) => b.value - a.value);
   }
 

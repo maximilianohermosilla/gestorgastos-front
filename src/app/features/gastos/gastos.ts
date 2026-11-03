@@ -14,13 +14,17 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { TokenService } from '../../core/auth/token.service';
 import { CategoriaGasto } from '../../core/models/categoria-gasto';
+import { Cuenta } from '../../core/models/cuenta';
 import { Registro } from '../../core/models/registro';
 import { CategoriaGastoService } from '../../core/services/categoria-gasto.service';
+import { CuentaService } from '../../core/services/cuenta.service';
 import { RegistroService } from '../../core/services/registro.service';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { DateShortPipe } from '../../shared/pipes/date-short.pipe';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { textoContraste } from '../../shared/utils/color';
 import { currentPeriod, todayDateOnly } from '../../shared/utils/date';
 import { RegistroDialog } from './registro-dialog';
 
@@ -41,31 +45,42 @@ import { RegistroDialog } from './registro-dialog';
     EmptyState,
     DateShortPipe,
     MoneyPipe,
+    FormPeriodo,
   ],
   templateUrl: './gastos.html',
 })
 export class Gastos implements OnInit {
   private readonly service = inject(RegistroService);
   private readonly categoriaService = inject(CategoriaGastoService);
+  private readonly cuentaService = inject(CuentaService);
   private readonly token = inject(TokenService);
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
 
-  readonly periodo = new FormControl<string>(currentPeriod(), { nonNullable: true });
+  readonly periodo = signal(currentPeriod());
   readonly search = new FormControl<string>('', { nonNullable: true });
   readonly categoria = new FormControl<number | null>(null);
+  readonly cuenta = signal<number | null>(null);
   readonly soloPendientes = new FormControl<boolean>(false, { nonNullable: true });
 
   readonly categorias = signal<CategoriaGasto[]>([]);
+  readonly cuentas = signal<Cuenta[]>([]);
   readonly items = signal<Registro[]>([]);
   readonly loading = signal(false);
+
+  readonly filtered = computed(() => {
+    const c = this.cuenta();
+    return c ? this.items().filter((r) => r.idCuenta === c) : this.items();
+  });
+
+  readonly total = computed(() => this.filtered().reduce((s, r) => s + r.valor, 0));
 
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
 
   readonly paged = computed(() => {
     const start = this.pageIndex() * this.pageSize();
-    return this.items().slice(start, start + this.pageSize());
+    return this.filtered().slice(start, start + this.pageSize());
   });
 
   onPage(e: PageEvent): void {
@@ -77,7 +92,22 @@ export class Gastos implements OnInit {
 
   ngOnInit(): void {
     this.categoriaService.getAll().subscribe((r) => this.categorias.set(r));
+    this.cuentaService.getAllByUsuario().subscribe((r) => this.cuentas.set(r));
     this.cargar();
+  }
+
+  onPeriodoChange(p: string): void {
+    this.periodo.set(p);
+    this.cargar();
+  }
+
+  onCuentaChange(v: number | null): void {
+    this.cuenta.set(v);
+    this.pageIndex.set(0);
+  }
+
+  colorTexto(hex?: string | null): string {
+    return textoContraste(hex);
   }
 
   cargar(): void {
@@ -88,7 +118,7 @@ export class Gastos implements OnInit {
       descripcion: this.search.value || undefined,
       pagado: this.soloPendientes.value ? false : undefined,
     };
-    this.service.getAllByUsuario(this.periodo.value, filters).subscribe({
+    this.service.getAllByUsuario(this.periodo(), filters).subscribe({
       next: (r) => {
         this.items.set(r);
         this.loading.set(false);
