@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { TokenService } from '../../core/auth/token.service';
 import { CategoriaGasto } from '../../core/models/categoria-gasto';
 import { Registro } from '../../core/models/registro';
@@ -28,6 +29,7 @@ import { RegistroDialog } from './registro-dialog';
   imports: [
     ReactiveFormsModule,
     MatTableModule,
+    MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -58,6 +60,19 @@ export class Gastos implements OnInit {
   readonly items = signal<Registro[]>([]);
   readonly loading = signal(false);
 
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+
+  readonly paged = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.items().slice(start, start + this.pageSize());
+  });
+
+  onPage(e: PageEvent): void {
+    this.pageIndex.set(e.pageIndex);
+    this.pageSize.set(e.pageSize);
+  }
+
   readonly columnas = ['fecha', 'descripcion', 'categoria', 'cuenta', 'valor', 'pagado', 'acciones'];
 
   ngOnInit(): void {
@@ -66,6 +81,7 @@ export class Gastos implements OnInit {
   }
 
   cargar(): void {
+    this.pageIndex.set(0);
     this.loading.set(true);
     const filters = {
       categoria: this.categoria.value ?? undefined,

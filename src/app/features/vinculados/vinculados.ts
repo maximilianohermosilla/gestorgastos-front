@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { RegistroVinculado } from '../../core/models/registro-vinculado';
 import { RegistroVinculadoService } from '../../core/services/registro-vinculado.service';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
@@ -20,6 +21,7 @@ import { VinculadoDialog } from './vinculado-dialog';
   selector: 'app-vinculados',
   imports: [
     MatTableModule,
+    MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -50,11 +52,25 @@ export class Vinculados implements OnInit {
     return this.items().filter((v) => (v.descripcion ?? '').toLowerCase().includes(term));
   });
 
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+
+  readonly paged = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.filtered().slice(start, start + this.pageSize());
+  });
+
+  onPage(e: PageEvent): void {
+    this.pageIndex.set(e.pageIndex);
+    this.pageSize.set(e.pageSize);
+  }
+
   ngOnInit(): void {
     this.cargar();
   }
 
   onSearch(e: Event): void {
+    this.pageIndex.set(0);
     this.searchText.set((e.target as HTMLInputElement).value);
   }
 

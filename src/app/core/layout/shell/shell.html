@@ -47,8 +47,8 @@
             [class.text-accent]="rla.isActive"
             (click)="onNavClick(sidenav)"
           >
-            <mat-icon>{{ item.icon }}</mat-icon>
-            <span>{{ item.nombre }}</span>
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.nombre }}</span>
           </a>
         }
       }

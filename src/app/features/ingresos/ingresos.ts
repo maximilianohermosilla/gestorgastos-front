@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { CategoriaIngreso } from '../../core/models/categoria-ingreso';
 import { Ingreso } from '../../core/models/ingreso';
 import { CategoriaIngresoService } from '../../core/services/categoria-ingreso.service';
@@ -26,6 +27,7 @@ import { IngresoDialog } from './ingreso-dialog';
   imports: [
     ReactiveFormsModule,
     MatTableModule,
+    MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -63,12 +65,26 @@ export class Ingresos implements OnInit {
     return this.items().filter((i) => (i.descripcion ?? '').toLowerCase().includes(term));
   });
 
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+
+  readonly paged = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.filtered().slice(start, start + this.pageSize());
+  });
+
+  onPage(e: PageEvent): void {
+    this.pageIndex.set(e.pageIndex);
+    this.pageSize.set(e.pageSize);
+  }
+
   ngOnInit(): void {
     this.categoriaService.getAll().subscribe((r) => this.categorias.set(r));
     this.cargar();
   }
 
   onSearch(e: Event): void {
+    this.pageIndex.set(0);
     this.searchText.set((e.target as HTMLInputElement).value);
   }
 

@@ -47,13 +47,19 @@ body {
 
 // Superficies Material con efecto vidrio
 .mat-mdc-card,
-.mat-mdc-dialog-container,
-.mat-mdc-menu-panel,
+.mat-mdc-dialog-surface,
 .mat-toolbar,
 .mat-sidenav {
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+// Paneles flotantes (menú, select) con fondo sólido para legibilidad
+.mat-mdc-menu-panel,
+.mat-mdc-select-panel {
+  background-color: #0e2a21 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 // El área de contenido deja ver la «niebla» de fondo

@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { BancoService } from '../../../core/services/banco.service';
 import { CrudService } from '../../../core/services/crud.service';
 import { EmpresaService } from '../../../core/services/empresa.service';
@@ -29,7 +30,7 @@ interface Config {
 
 @Component({
   selector: 'app-catalogo',
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatCardModule, MatProgressSpinnerModule, EmptyState],
+  imports: [MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatCardModule, MatProgressSpinnerModule, EmptyState],
   templateUrl: './catalogo.html',
 })
 export class Catalogo implements OnInit {
@@ -56,11 +57,25 @@ export class Catalogo implements OnInit {
   readonly items = signal<Item[]>([]);
   readonly loading = signal(false);
 
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+
+  readonly paged = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.items().slice(start, start + this.pageSize());
+  });
+
+  onPage(e: PageEvent): void {
+    this.pageIndex.set(e.pageIndex);
+    this.pageSize.set(e.pageSize);
+  }
+
   ngOnInit(): void {
     this.cargar();
   }
 
   cargar(): void {
+    this.pageIndex.set(0);
     this.loading.set(true);
     this.config().service.getAll().subscribe({
       next: (r) => {

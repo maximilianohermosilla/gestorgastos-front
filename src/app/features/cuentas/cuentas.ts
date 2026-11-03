@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { TokenService } from '../../core/auth/token.service';
 import { Cuenta } from '../../core/models/cuenta';
 import { CuentaService } from '../../core/services/cuenta.service';
@@ -15,7 +16,7 @@ import { CuentaDialog } from './cuenta-dialog';
 
 @Component({
   selector: 'app-cuentas',
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatCardModule, MatProgressSpinnerModule, EmptyState],
+  imports: [MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatCardModule, MatProgressSpinnerModule, EmptyState],
   templateUrl: './cuentas.html',
 })
 export class Cuentas implements OnInit {
@@ -28,11 +29,25 @@ export class Cuentas implements OnInit {
   readonly items = signal<Cuenta[]>([]);
   readonly loading = signal(false);
 
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+
+  readonly paged = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.items().slice(start, start + this.pageSize());
+  });
+
+  onPage(e: PageEvent): void {
+    this.pageIndex.set(e.pageIndex);
+    this.pageSize.set(e.pageSize);
+  }
+
   ngOnInit(): void {
     this.cargar();
   }
 
   cargar(): void {
+    this.pageIndex.set(0);
     this.loading.set(true);
     this.service.getAllByUsuario().subscribe({
       next: (r) => {
