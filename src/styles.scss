@@ -67,3 +67,8 @@ body {
 .mat-drawer-content {
   background: transparent !important;
 }
+
+// Selector de periodo: el campo dentro del tab-group va sin esquinas redondeadas
+.periodo__tabs .mdc-text-field {
+  border-radius: 0 !important;
+}

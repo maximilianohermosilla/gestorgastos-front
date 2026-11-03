@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { CategoriaGasto } from '../../core/models/categoria-gasto';
 import { Cuenta } from '../../core/models/cuenta';
@@ -21,6 +22,7 @@ import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { DateShortPipe } from '../../shared/pipes/date-short.pipe';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { textoContraste } from '../../shared/utils/color';
 import { currentPeriod } from '../../shared/utils/date';
 import { SuscripcionDialog } from './suscripcion-dialog';
 
@@ -29,6 +31,7 @@ import { SuscripcionDialog } from './suscripcion-dialog';
   imports: [
     MatTableModule,
     MatPaginatorModule,
+    MatTooltipModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -60,7 +63,7 @@ export class Suscripciones implements OnInit {
   readonly items = signal<Suscripcion[]>([]);
   readonly loading = signal(false);
 
-  readonly columnas = ['nombre', 'valor', 'desde', 'hasta', 'cuotas', 'acciones'];
+  readonly columnas = ['categoria', 'nombre', 'valor', 'desde', 'hasta', 'cuotas', 'acciones'];
 
   readonly filtered = computed(() => {
     const term = this.searchText().trim().toLowerCase();
@@ -120,6 +123,14 @@ export class Suscripciones implements OnInit {
   onCuentaChange(v: number | null): void {
     this.cuenta.set(v);
     this.pageIndex.set(0);
+  }
+
+  categoriaDe(item: Suscripcion): CategoriaGasto | undefined {
+    return item.registros?.[0]?.categoriaGasto;
+  }
+
+  colorTexto(hex?: string | null): string {
+    return textoContraste(hex);
   }
 
   cargar(): void {

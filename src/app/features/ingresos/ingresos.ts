@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { CategoriaIngreso } from '../../core/models/categoria-ingreso';
 import { Ingreso } from '../../core/models/ingreso';
@@ -30,6 +31,7 @@ import { IngresoDialog } from './ingreso-dialog';
     ReactiveFormsModule,
     MatTableModule,
     MatPaginatorModule,
+    MatTooltipModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -58,7 +60,7 @@ export class Ingresos implements OnInit {
   readonly items = signal<Ingreso[]>([]);
   readonly loading = signal(false);
 
-  readonly columnas = ['fecha', 'descripcion', 'categoria', 'valor', 'acciones'];
+  readonly columnas = ['categoria', 'fecha', 'descripcion', 'valor', 'acciones'];
 
   readonly filtered = computed(() => {
     const term = this.searchText().trim().toLowerCase();

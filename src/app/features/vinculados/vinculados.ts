@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { CategoriaGasto } from '../../core/models/categoria-gasto';
 import { Cuenta } from '../../core/models/cuenta';
@@ -20,6 +21,7 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { textoContraste } from '../../shared/utils/color';
 import { currentPeriod } from '../../shared/utils/date';
 import { CuotasDialog } from './cuotas-dialog';
 import { VinculadoDialog } from './vinculado-dialog';
@@ -29,6 +31,7 @@ import { VinculadoDialog } from './vinculado-dialog';
   imports: [
     MatTableModule,
     MatPaginatorModule,
+    MatTooltipModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -59,7 +62,7 @@ export class Vinculados implements OnInit {
   readonly items = signal<RegistroVinculado[]>([]);
   readonly loading = signal(false);
 
-  readonly columnas = ['descripcion', 'cuotas', 'valorFinal', 'valorCuota', 'acciones'];
+  readonly columnas = ['categoria', 'descripcion', 'cuenta', 'cuotas', 'valorFinal', 'valorCuota', 'acciones'];
 
   readonly filtered = computed(() => {
     const term = this.searchText().trim().toLowerCase();
@@ -119,6 +122,18 @@ export class Vinculados implements OnInit {
   onCuentaChange(v: number | null): void {
     this.cuenta.set(v);
     this.pageIndex.set(0);
+  }
+
+  categoriaDe(item: RegistroVinculado): CategoriaGasto | undefined {
+    return item.registros?.[0]?.categoriaGasto;
+  }
+
+  cuentaDe(item: RegistroVinculado): string {
+    return item.registros?.[0]?.cuenta?.nombre ?? '—';
+  }
+
+  colorTexto(hex?: string | null): string {
+    return textoContraste(hex);
   }
 
   valorCuota(item: RegistroVinculado): number {

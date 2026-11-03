@@ -1,32 +1,31 @@
-<div class="flex flex-wrap items-center gap-1">
-  <button mat-icon-button (click)="anterior()" aria-label="Periodo anterior">
+<div class="flex flex-wrap items-center gap-2">
+  <button mat-icon-button (click)="anterior()" matTooltip="Anterior" aria-label="Periodo anterior">
     <mat-icon>chevron_left</mat-icon>
   </button>
 
-  @if (!hiddenMonth()) {
-    <mat-button-toggle-group
-      [value]="modo()"
-      (change)="cambiarModo($event)"
-      aria-label="Modo de periodo"
-    >
-      <mat-button-toggle value="mes">Mes</mat-button-toggle>
-      <mat-button-toggle value="anio">Año</mat-button-toggle>
-    </mat-button-toggle-group>
-  }
+  <mat-tab-group
+    class="periodo__tabs"
+    [selectedIndex]="selectedIndex()"
+    (selectedIndexChange)="cambiarModo($event)"
+    aria-label="Modo de periodo"
+  >
+    @if (!hiddenMonth()) {
+      <mat-tab label="Mes">
+        <mat-form-field appearance="fill" class="w-44">
+          <mat-label>Periodo</mat-label>
+          <input matInput type="month" [value]="mes()" (change)="onMesChange($event)" />
+        </mat-form-field>
+      </mat-tab>
+    }
+    <mat-tab label="Año">
+      <mat-form-field appearance="fill" class="w-32">
+        <mat-label>Año</mat-label>
+        <input matInput type="number" [value]="anio()" (change)="onAnioChange($event)" />
+      </mat-form-field>
+    </mat-tab>
+  </mat-tab-group>
 
-  @if (modo() === 'mes') {
-    <mat-form-field appearance="outline" class="w-44">
-      <mat-label>Periodo</mat-label>
-      <input matInput type="month" [value]="mes()" (change)="onMesChange($event)" />
-    </mat-form-field>
-  } @else {
-    <mat-form-field appearance="outline" class="w-32">
-      <mat-label>Año</mat-label>
-      <input matInput type="number" [value]="anio()" (change)="onAnioChange($event)" />
-    </mat-form-field>
-  }
-
-  <button mat-icon-button (click)="siguiente()" aria-label="Periodo siguiente">
+  <button mat-icon-button (click)="siguiente()" matTooltip="Siguiente" aria-label="Periodo siguiente">
     <mat-icon>chevron_right</mat-icon>
   </button>
 </div>

@@ -7,9 +7,11 @@
     </button>
   </div>
 
-  <div class="mb-4 flex flex-wrap items-center gap-3">
+  <div class="mb-4">
     <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
+  </div>
 
+  <div class="mb-4 flex flex-wrap items-center gap-3">
     <mat-form-field appearance="outline" class="min-w-52 flex-1">
       <mat-label>Buscar</mat-label>
       <input matInput (input)="onSearch($event)" placeholder="Descripción" />
@@ -47,9 +49,35 @@
   } @else {
     <mat-card>
       <table mat-table [dataSource]="paged()" class="w-full">
+        <ng-container matColumnDef="categoria">
+          <th mat-header-cell *matHeaderCellDef class="w-16 text-center">Categoría</th>
+          <td mat-cell *matCellDef="let item" class="text-center">
+            @if (categoriaDe(item)?.icono) {
+              <span
+                class="inline-flex h-8 w-8 cursor-help items-center justify-center rounded-full"
+                [matTooltip]="categoriaDe(item)?.nombre ?? ''"
+                matTooltipPosition="right"
+                [style.background-color]="categoriaDe(item)?.color ?? '#1b4f3c'"
+              >
+                <mat-icon
+                  class="!h-5 !w-5 !text-lg leading-none"
+                  [style.color]="colorTexto(categoriaDe(item)?.color)"
+                >
+                  {{ categoriaDe(item)?.icono }}
+                </mat-icon>
+              </span>
+            }
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="descripcion">
           <th mat-header-cell *matHeaderCellDef>Descripción</th>
           <td mat-cell *matCellDef="let item">{{ item.descripcion }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="cuenta">
+          <th mat-header-cell *matHeaderCellDef>Cuenta</th>
+          <td mat-cell *matCellDef="let item">{{ cuentaDe(item) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="cuotas">
@@ -68,9 +96,9 @@
         </ng-container>
 
         <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef class="w-36 whitespace-nowrap text-right">Acciones</th>
-          <td mat-cell *matCellDef="let item" class="whitespace-nowrap text-right">
-            <div class="flex flex-nowrap items-center justify-end gap-0.5">
+          <th mat-header-cell *matHeaderCellDef class="w-36 whitespace-nowrap !text-center">Acciones</th>
+          <td mat-cell *matCellDef="let item" class="whitespace-nowrap text-center">
+            <div class="flex flex-nowrap items-center justify-center gap-0.5">
               <button mat-icon-button (click)="verCuotas(item)" aria-label="Ver cuotas">
                 <mat-icon class="!text-mist-200">visibility</mat-icon>
               </button>

@@ -7,9 +7,11 @@
     </button>
   </div>
 
-  <div class="mb-4 flex flex-wrap items-center gap-3">
+  <div class="mb-4">
     <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
+  </div>
 
+  <div class="mb-4 flex flex-wrap items-center gap-3">
     <mat-form-field appearance="outline" class="min-w-52 flex-1">
       <mat-label>Buscar</mat-label>
       <input matInput [formControl]="search" placeholder="Descripción" (input)="cargar()" />
@@ -49,6 +51,27 @@
   } @else {
     <mat-card>
       <table mat-table [dataSource]="paged()" class="w-full">
+        <ng-container matColumnDef="categoria">
+          <th mat-header-cell *matHeaderCellDef class="w-16 text-center">Categoría</th>
+          <td mat-cell *matCellDef="let item" class="text-center">
+            @if (item.categoriaGasto?.icono) {
+              <span
+                class="inline-flex h-8 w-8 cursor-help items-center justify-center rounded-full"
+                [matTooltip]="item.categoriaGasto?.nombre ?? ''"
+                matTooltipPosition="right"
+                [style.background-color]="item.categoriaGasto.color ?? '#1b4f3c'"
+              >
+                <mat-icon
+                  class="!h-5 !w-5 !text-lg leading-none"
+                  [style.color]="colorTexto(item.categoriaGasto.color)"
+                >
+                  {{ item.categoriaGasto.icono }}
+                </mat-icon>
+              </span>
+            }
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="fecha">
           <th mat-header-cell *matHeaderCellDef>Fecha</th>
           <td mat-cell *matCellDef="let item">{{ item.fecha | dateShort }}</td>
@@ -57,28 +80,6 @@
         <ng-container matColumnDef="descripcion">
           <th mat-header-cell *matHeaderCellDef>Descripción</th>
           <td mat-cell *matCellDef="let item">{{ item.descripcion }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="categoria">
-          <th mat-header-cell *matHeaderCellDef>Categoría</th>
-          <td mat-cell *matCellDef="let item">
-            <div class="flex items-center gap-2">
-              @if (item.categoriaGasto?.icono) {
-                <span
-                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-                  [style.background-color]="item.categoriaGasto.color ?? '#1b4f3c'"
-                >
-                  <mat-icon
-                    class="!h-4 !w-4 !text-base leading-none"
-                    [style.color]="colorTexto(item.categoriaGasto.color)"
-                  >
-                    {{ item.categoriaGasto.icono }}
-                  </mat-icon>
-                </span>
-              }
-              <span>{{ item.categoriaGastoNombre ?? item.categoriaGasto?.nombre ?? '—' }}</span>
-            </div>
-          </td>
         </ng-container>
 
         <ng-container matColumnDef="cuenta">
@@ -109,9 +110,9 @@
         </ng-container>
 
         <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef class="w-36 whitespace-nowrap text-right">Acciones</th>
-          <td mat-cell *matCellDef="let item" class="whitespace-nowrap text-right">
-            <div class="flex flex-nowrap items-center justify-end gap-0.5">
+          <th mat-header-cell *matHeaderCellDef class="w-36 whitespace-nowrap !text-center">Acciones</th>
+          <td mat-cell *matCellDef="let item" class="whitespace-nowrap text-center">
+            <div class="flex flex-nowrap items-center justify-center gap-0.5">
               <button mat-icon-button (click)="abrir(item)" aria-label="Editar">
                 <mat-icon class="!text-accent">edit</mat-icon>
               </button>

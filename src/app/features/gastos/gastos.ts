@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { TokenService } from '../../core/auth/token.service';
 import { CategoriaGasto } from '../../core/models/categoria-gasto';
@@ -34,6 +35,7 @@ import { RegistroDialog } from './registro-dialog';
     ReactiveFormsModule,
     MatTableModule,
     MatPaginatorModule,
+    MatTooltipModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -88,7 +90,7 @@ export class Gastos implements OnInit {
     this.pageSize.set(e.pageSize);
   }
 
-  readonly columnas = ['fecha', 'descripcion', 'categoria', 'cuenta', 'valor', 'pagado', 'acciones'];
+  readonly columnas = ['categoria', 'fecha', 'descripcion', 'cuenta', 'valor', 'pagado', 'acciones'];
 
   ngOnInit(): void {
     this.categoriaService.getAll().subscribe((r) => this.categorias.set(r));
