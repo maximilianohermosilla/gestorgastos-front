@@ -13,14 +13,21 @@
       <mat-tab label="Mes">
         <mat-form-field appearance="fill" class="w-44">
           <mat-label>Periodo</mat-label>
-          <input matInput type="month" [value]="mes()" (change)="onMesChange($event)" />
+          <input
+            matInput
+            [formControl]="mesCtrl"
+            [matDatepicker]="dpMes"
+            (dateChange)="onMesSelected($event)"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="dpMes"></mat-datepicker-toggle>
+          <mat-datepicker #dpMes startView="multi-year"></mat-datepicker>
         </mat-form-field>
       </mat-tab>
     }
     <mat-tab label="Año">
       <mat-form-field appearance="fill" class="w-32">
         <mat-label>Año</mat-label>
-        <input matInput type="number" [value]="anio()" (change)="onAnioChange($event)" />
+        <input matInput type="number" [formControl]="anioCtrl" (change)="onAnioChange($event)" />
       </mat-form-field>
     </mat-tab>
   </mat-tab-group>

@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -15,6 +15,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideAnimationsAsync(),
     provideNativeDateAdapter(),
+    // El calendario de Material deriva el idioma de LOCALE_ID
+    { provide: LOCALE_ID, useValue: 'es' },
     provideHttpClient(withInterceptors([spinnerInterceptor, authInterceptor, errorInterceptor])),
     provideCharts(),
   ],
