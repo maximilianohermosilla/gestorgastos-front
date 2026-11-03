@@ -6,14 +6,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
+import { CategoriaGasto } from '../../core/models/categoria-gasto';
+import { Cuenta } from '../../core/models/cuenta';
 import { RegistroVinculado } from '../../core/models/registro-vinculado';
+import { CategoriaGastoService } from '../../core/services/categoria-gasto.service';
+import { CuentaService } from '../../core/services/cuenta.service';
 import { RegistroVinculadoService } from '../../core/services/registro-vinculado.service';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { currentPeriod } from '../../shared/utils/date';
 import { CuotasDialog } from './cuotas-dialog';
 import { VinculadoDialog } from './vinculado-dialog';
 
@@ -28,17 +35,27 @@ import { VinculadoDialog } from './vinculado-dialog';
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     EmptyState,
     MoneyPipe,
+    FormPeriodo,
   ],
   templateUrl: './vinculados.html',
 })
 export class Vinculados implements OnInit {
   private readonly service = inject(RegistroVinculadoService);
+  private readonly categoriaService = inject(CategoriaGastoService);
+  private readonly cuentaService = inject(CuentaService);
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
 
+  readonly periodo = signal(currentPeriod());
   readonly searchText = signal('');
+  readonly categoria = signal<number | null>(null);
+  readonly cuenta = signal<number | null>(null);
+
+  readonly categorias = signal<CategoriaGasto[]>([]);
+  readonly cuentas = signal<Cuenta[]>([]);
   readonly items = signal<RegistroVinculado[]>([]);
   readonly loading = signal(false);
 
@@ -46,11 +63,24 @@ export class Vinculados implements OnInit {
 
   readonly filtered = computed(() => {
     const term = this.searchText().trim().toLowerCase();
-    if (!term) {
-      return this.items();
-    }
-    return this.items().filter((v) => (v.descripcion ?? '').toLowerCase().includes(term));
+    const cat = this.categoria();
+    const cta = this.cuenta();
+    return this.items().filter((v) => {
+      const reg = v.registros?.[0];
+      if (term && !(v.descripcion ?? '').toLowerCase().includes(term)) {
+        return false;
+      }
+      if (cat && reg?.idCategoriaGasto !== cat) {
+        return false;
+      }
+      if (cta && reg?.idCuenta !== cta) {
+        return false;
+      }
+      return true;
+    });
   });
+
+  readonly total = computed(() => this.filtered().reduce((s, x) => s + x.valorFinal, 0));
 
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
@@ -66,6 +96,8 @@ export class Vinculados implements OnInit {
   }
 
   ngOnInit(): void {
+    this.categoriaService.getAll().subscribe((r) => this.categorias.set(r));
+    this.cuentaService.getAllByUsuario().subscribe((r) => this.cuentas.set(r));
     this.cargar();
   }
 
@@ -74,13 +106,29 @@ export class Vinculados implements OnInit {
     this.searchText.set((e.target as HTMLInputElement).value);
   }
 
+  onPeriodoChange(p: string): void {
+    this.periodo.set(p);
+    this.cargar();
+  }
+
+  onCategoriaChange(v: number | null): void {
+    this.categoria.set(v);
+    this.pageIndex.set(0);
+  }
+
+  onCuentaChange(v: number | null): void {
+    this.cuenta.set(v);
+    this.pageIndex.set(0);
+  }
+
   valorCuota(item: RegistroVinculado): number {
     return item.cuotas > 0 ? item.valorFinal / item.cuotas : 0;
   }
 
   cargar(): void {
+    this.pageIndex.set(0);
     this.loading.set(true);
-    this.service.getAllByUsuario().subscribe({
+    this.service.getAllByUsuario(this.periodo()).subscribe({
       next: (r) => {
         this.items.set(r);
         this.loading.set(false);

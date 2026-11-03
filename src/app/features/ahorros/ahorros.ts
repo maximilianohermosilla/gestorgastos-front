@@ -6,10 +6,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
+import { Cuenta } from '../../core/models/cuenta';
 import { RegistroAhorro } from '../../core/models/registro-ahorro';
+import { CuentaService } from '../../core/services/cuenta.service';
 import { RegistroAhorroService } from '../../core/services/registro-ahorro.service';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
@@ -30,6 +33,7 @@ import { AhorroDialog } from './ahorro-dialog';
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     EmptyState,
     DateShortPipe,
     MoneyPipe,
@@ -39,12 +43,15 @@ import { AhorroDialog } from './ahorro-dialog';
 })
 export class Ahorros implements OnInit {
   private readonly service = inject(RegistroAhorroService);
+  private readonly cuentaService = inject(CuentaService);
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
 
   readonly periodo = signal(currentPeriod());
   readonly searchText = signal('');
+  readonly cuenta = signal<number | null>(null);
 
+  readonly cuentas = signal<Cuenta[]>([]);
   readonly items = signal<RegistroAhorro[]>([]);
   readonly loading = signal(false);
 
@@ -52,10 +59,16 @@ export class Ahorros implements OnInit {
 
   readonly filtered = computed(() => {
     const term = this.searchText().trim().toLowerCase();
-    if (!term) {
-      return this.items();
-    }
-    return this.items().filter((a) => (a.descripcion ?? '').toLowerCase().includes(term));
+    const cta = this.cuenta();
+    return this.items().filter((a) => {
+      if (term && !(a.descripcion ?? '').toLowerCase().includes(term)) {
+        return false;
+      }
+      if (cta && a.idCuenta !== cta) {
+        return false;
+      }
+      return true;
+    });
   });
 
   readonly total = computed(() => this.filtered().reduce((s, a) => s + a.valor, 0));
@@ -74,6 +87,7 @@ export class Ahorros implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cuentaService.getAllByUsuario().subscribe((r) => this.cuentas.set(r));
     this.cargar();
   }
 
@@ -85,6 +99,11 @@ export class Ahorros implements OnInit {
   onPeriodoChange(p: string): void {
     this.periodo.set(p);
     this.cargar();
+  }
+
+  onCuentaChange(v: number | null): void {
+    this.cuenta.set(v);
+    this.pageIndex.set(0);
   }
 
   cargar(): void {
