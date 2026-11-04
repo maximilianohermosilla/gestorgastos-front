@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -9,6 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { esAdministrador } from '../../../shared/utils/role';
 import { AuthService } from '../../auth/auth.service';
 import { TokenService } from '../../auth/token.service';
 
@@ -47,11 +48,17 @@ export class Shell {
 
   readonly isMobile = signal(false);
 
+  /** Rol del usuario actual (claim `role` del token). */
+  readonly role = computed(() => this.auth.currentUser()?.role ?? this.token.getAuthorities());
+
+  /** Solo el administrador accede a los catálogos. */
+  readonly esAdministrador = computed(() => esAdministrador(this.role()));
+
   constructor() {
     this.breakpointObserver.observe(['(max-width: 768px)']).subscribe((r) => this.isMobile.set(r.matches));
   }
 
-  readonly navGroups: NavGroup[] = [
+  private readonly navGroupsBase: NavGroup[] = [
     {
       items: [
         { nombre: 'Inicio', routerlink: '/dashboard', icon: 'home' },
@@ -77,6 +84,7 @@ export class Shell {
       items: [
         { nombre: 'Cuentas', routerlink: '/cuentas', icon: 'account_balance_wallet' },
         { nombre: 'Tarjetas', routerlink: '/tarjetas', icon: 'credit_card' },
+        { nombre: 'Perfil', routerlink: '/perfil', icon: 'person' },
       ],
     },
     {
@@ -88,10 +96,12 @@ export class Shell {
         { nombre: 'Tipos de tarjeta', routerlink: '/tipos-tarjeta', icon: 'style' },
       ],
     },
-    {
-      items: [{ nombre: 'Perfil', routerlink: '/perfil', icon: 'person' }],
-    },
   ];
+
+  /** Grupos del menú: «Catálogos» solo para administradores. */
+  readonly navGroups = computed<NavGroup[]>(() =>
+    this.esAdministrador() ? this.navGroupsBase : this.navGroupsBase.filter((g) => g.titulo !== 'Catálogos'),
+  );
 
   get userName(): string {
     return this.token.getUserName() ?? '';

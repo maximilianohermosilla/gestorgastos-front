@@ -31,7 +31,7 @@
     class="w-60 border-r border-white/10"
   >
     <mat-nav-list>
-      @for (group of navGroups; track $index) {
+      @for (group of navGroups(); track $index) {
         @if (group.titulo) {
           <div class="px-4 pb-1 pt-4 text-xs font-medium uppercase tracking-wide text-mist-300">
             {{ group.titulo }}
