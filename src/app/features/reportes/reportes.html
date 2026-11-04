@@ -10,7 +10,7 @@
   </div>
 
   <div class="mb-4">
-    <app-form-periodo [periodo]="periodo()" [hiddenMonth]="true" (cambio)="onPeriodoChange($event)" />
+    <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
   </div>
 
   @if (loading()) {
@@ -57,7 +57,7 @@
     <div class="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
       <mat-card class="lg:col-span-2">
         <mat-card-header>
-          <mat-card-title>Evolución mensual</mat-card-title>
+          <mat-card-title>{{ tituloEvolucion() }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div echarts [options]="evolucionOption()" class="h-[320px] w-full"></div>

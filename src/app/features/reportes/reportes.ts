@@ -69,6 +69,20 @@ export class Reportes implements OnInit {
   readonly ingresosCategoriaOption = computed(() => this.donutOption(this.ingresosCategoriaData(), 'Ingresos por categoría'));
   readonly gastosCuentaOption = computed(() => this.barOption(this.gastosCuentaData(), 'Gastos por cuenta'));
 
+  /** El periodo puede ser un año ("2026") o un mes ("2026-08"). */
+  readonly esMes = computed(() => this.periodo().length === 7);
+
+  readonly tituloEvolucion = computed(() => (this.esMes() ? 'Detalle del mes' : 'Evolución mensual'));
+
+  /** Meses incluidos en el gráfico de evolución según el periodo elegido. */
+  private indicesEvolucion(): number[] {
+    if (this.esMes()) {
+      const m = Number(this.periodo().substring(5, 7)) - 1;
+      return m >= 0 && m < 12 ? [m] : [0];
+    }
+    return Array.from({ length: 12 }, (_, i) => i);
+  }
+
   readonly evolucionOption = computed<EChartsCoreOption>(() => {
     const ingresos = new Array<number>(12).fill(0);
     const gastos = new Array<number>(12).fill(0);
@@ -85,13 +99,14 @@ export class Reportes implements OnInit {
       const m = this.mesDe(a.fecha);
       if (m >= 0) ahorros[m] += a.valor;
     }
+    const indices = this.indicesEvolucion();
     return {
       tooltip: { trigger: 'axis' },
       legend: { data: ['Ingresos', 'Gastos', 'Ahorros'], bottom: 0, textStyle: { color: '#a5ddc4' } },
       grid: { left: '3%', right: '4%', bottom: '14%', top: '3%', containLabel: true },
       xAxis: {
         type: 'category',
-        data: MESES,
+        data: indices.map((i) => MESES[i]),
         boundaryGap: false,
         axisLabel: { color: '#a5ddc4' },
         axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } },
@@ -102,9 +117,30 @@ export class Reportes implements OnInit {
         splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
       },
       series: [
-        { name: 'Ingresos', type: 'line', smooth: true, data: ingresos, itemStyle: { color: '#34d399' }, areaStyle: { opacity: 0.08 } },
-        { name: 'Gastos', type: 'line', smooth: true, data: gastos, itemStyle: { color: '#f87171' }, areaStyle: { opacity: 0.08 } },
-        { name: 'Ahorros', type: 'line', smooth: true, data: ahorros, itemStyle: { color: '#38bdf8' }, areaStyle: { opacity: 0.08 } },
+        {
+          name: 'Ingresos',
+          type: 'line',
+          smooth: true,
+          data: indices.map((i) => ingresos[i]),
+          itemStyle: { color: '#34d399' },
+          areaStyle: { opacity: 0.08 },
+        },
+        {
+          name: 'Gastos',
+          type: 'line',
+          smooth: true,
+          data: indices.map((i) => gastos[i]),
+          itemStyle: { color: '#f87171' },
+          areaStyle: { opacity: 0.08 },
+        },
+        {
+          name: 'Ahorros',
+          type: 'line',
+          smooth: true,
+          data: indices.map((i) => ahorros[i]),
+          itemStyle: { color: '#38bdf8' },
+          areaStyle: { opacity: 0.08 },
+        },
       ],
     };
   });

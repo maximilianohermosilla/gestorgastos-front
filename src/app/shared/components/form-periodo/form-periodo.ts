@@ -141,11 +141,27 @@ export class FormPeriodo {
   }
 
   onMesSelected(e: MatDatepickerInputEvent<Date>): void {
-    const d = e.value;
+    this.dpMes?.close();
+    this.emitPeriodo(e.value);
+  }
+
+  /** Enter en el input de mes: aplica el valor actual (igual que el change). */
+  onEnterMes(e: Event): void {
+    e.preventDefault();
+    this.dpMes?.close();
+    this.emitPeriodo(this.mesCtrl.value);
+  }
+
+  /** Enter en el input de año: aplica el valor (igual que el change). */
+  onEnterAnio(e: Event): void {
+    e.preventDefault();
+    this.onAnioChange(e);
+  }
+
+  private emitPeriodo(d: Date | null): void {
     if (!d) {
       return;
     }
-    this.dpMes?.close();
     const periodo = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     if (periodo !== this.periodo()) {
       this.cambio.emit(periodo);
