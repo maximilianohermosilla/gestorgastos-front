@@ -25,6 +25,18 @@ html {
   --mat-sys-surface-container: rgba(255, 255, 255, 0.06);
   --mat-sys-surface-container-high: rgba(255, 255, 255, 0.08);
   --mat-sys-surface-container-highest: rgba(255, 255, 255, 0.1);
+
+  // Paneles desplegables: fondo opaco para que las opciones se lean
+  --mat-select-panel-background-color: #0e2a21;
+  --mat-menu-container-color: #0e2a21;
+  --mat-datepicker-calendar-container-background-color: #0e2a21;
+
+  // Tipografía compacta de formularios y listas desplegables
+  --mat-form-field-container-text-size: 0.875rem;
+  --mat-form-field-outlined-label-text-size: 0.875rem;
+  --mat-form-field-subscript-text-size: 0.6875rem;
+  --mat-form-field-subscript-text-line-height: 1rem;
+  --mat-option-label-text-font: 'Plus Jakarta Sans', 0.875rem, 400;
 }
 
 html,
@@ -122,8 +134,38 @@ body {
 /* Paneles flotantes: fondo sólido para garantizar legibilidad */
 .mat-mdc-menu-panel,
 .mat-mdc-select-panel {
-  background: #0e2a21;
+  background-color: #0e2a21 !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Opciones de las listas desplegables: más compactas y legibles */
+.mat-mdc-option.mat-mdc-option {
+  min-height: 44px;
+  font-size: 0.875rem;
+}
+
+/* ------------------------------------------------------------------
+   Formularios compactos: evita inputs enormes y scroll en móvil
+   ------------------------------------------------------------------ */
+.mat-mdc-form-field {
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 12px;
+}
+
+/* Los diálogos se adaptan al ancho disponible (móvil sin scroll) */
+.cdk-overlay-pane.mat-mdc-dialog-panel.mat-mdc-dialog-panel {
+  max-width: calc(100vw - 32px);
+}
+
+/* Input nativo de fecha: evita que el texto quede recortado */
+.mat-mdc-form-field-input-control[type='date'] {
+  line-height: 1.5rem;
+  min-height: 1.5rem;
+}
+
+.mat-mdc-form-field-input-control[type='date']::-webkit-datetime-edit {
+  line-height: 1.5rem;
+  margin-bottom: 0;
 }
 
 /* El área de contenido deja ver la «niebla» de fondo */
@@ -147,6 +189,7 @@ body {
 
   .mat-mdc-form-field {
     --mat-form-field-container-height: 40px;
+    --mat-form-field-container-text-size: 1rem;
     width: auto;
     margin: 0 auto;
   }
