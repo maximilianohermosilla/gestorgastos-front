@@ -1,9 +1,23 @@
 <div class="mx-auto max-w-[1400px] p-4 sm:p-6">
-  <div class="mb-5 flex flex-wrap items-center gap-4">
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
     <div>
       <h1 class="text-2xl font-bold tracking-tight">Hola, {{ userName }}</h1>
-      <p class="text-mist-200">Resumen del periodo {{ periodo() }}</p>
+      <p class="text-mist-200">Resumen del periodo seleccionado</p>
     </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <button mat-stroked-button (click)="abrirIngreso()">
+        <mat-icon>add</mat-icon>
+        <span>Nuevo ingreso</span>
+      </button>
+      <button mat-flat-button color="primary" (click)="abrirGasto()">
+        <mat-icon>add</mat-icon>
+        <span>Nuevo gasto</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-4 flex justify-center">
+    <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
   </div>
 
   @if (loading()) {
@@ -63,16 +77,38 @@
       </mat-card>
     </div>
 
-    <div class="mt-5">
+    <div class="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Ingresos vs. gastos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div echarts [options]="comparativaOption()" class="h-[300px] w-full"></div>
+        </mat-card-content>
+      </mat-card>
+
       <mat-card>
         <mat-card-header>
           <mat-card-title>Gastos por categoría</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           @if (gastosPorCategoria().length) {
-            <div echarts [options]="donutOption()" class="h-[340px] w-full"></div>
+            <div echarts [options]="donutOption()" class="h-[300px] w-full"></div>
           } @else {
             <app-empty-state icon="pie_chart" message="Sin gastos registrados en este periodo" />
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="lg:col-span-2">
+        <mat-card-header>
+          <mat-card-title>Gastos por cuenta</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (gastosPorCuenta().length) {
+            <div echarts [options]="cuentaOption()" class="h-[300px] w-full"></div>
+          } @else {
+            <app-empty-state icon="account_balance" message="Sin gastos registrados en este periodo" />
           }
         </mat-card-content>
       </mat-card>
