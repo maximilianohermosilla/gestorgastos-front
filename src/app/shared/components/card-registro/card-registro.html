@@ -25,9 +25,10 @@
 
   <div class="min-w-0 flex-1">
     <p class="truncate text-sm font-medium text-mist-50">{{ registro().descripcion }}</p>
-    <p class="mt-0.5 truncate text-xs text-mist-200">
-      {{ registro().fecha | dateShort }} · {{ registro().cuenta?.nombre ?? 'Sin cuenta' }}
+    <p class="mt-0.5 truncate text-xs font-semibold text-mist-100">
+      {{ registro().cuenta?.nombre ?? 'Sin cuenta' }}
     </p>
+    <p class="truncate text-xs text-mist-300">{{ registro().fecha | dateShort }}</p>
   </div>
 
   <div class="flex shrink-0 flex-col items-end gap-1">
