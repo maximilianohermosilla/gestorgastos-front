@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>{{ data.item ? 'Editar cuenta' : 'Nueva cuenta' }}</h2>
 <mat-dialog-content>
-  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-[360px] flex-col gap-1 pt-2">
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-0 flex-col gap-1 pt-2 sm:min-w-[340px]">
     <mat-form-field appearance="outline">
       <mat-label>Nombre</mat-label>
       <input matInput formControlName="nombre" />

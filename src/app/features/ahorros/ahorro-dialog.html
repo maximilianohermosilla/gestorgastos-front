@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>{{ data.item ? 'Editar ahorro' : 'Nuevo ahorro' }}</h2>
 <mat-dialog-content>
-  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-[400px] flex-col gap-1 pt-2">
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-0 flex-col gap-1 pt-2 sm:min-w-[340px]">
     <mat-form-field appearance="outline">
       <mat-label>Descripción</mat-label>
       <input matInput formControlName="descripcion" />
