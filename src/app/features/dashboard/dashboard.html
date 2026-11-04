@@ -102,6 +102,37 @@
 
       <mat-card class="lg:col-span-2">
         <mat-card-header>
+          <mat-card-title>Gastos del periodo</mat-card-title>
+          <div class="ml-auto flex items-center gap-2">
+            <span class="text-xs uppercase tracking-wider text-mist-200">Total</span>
+            <span class="text-lg font-bold tracking-tight">{{ totalGastos() | money }}</span>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          @if (gastosRecientes().length) {
+            <div class="flex max-h-[420px] flex-col gap-2 overflow-y-auto pr-1">
+              @for (gasto of gastosRecientes(); track gasto.id) {
+                <app-card-registro
+                  [registro]="gasto"
+                  (editar)="editarGasto($event)"
+                  (togglePagado)="togglePagado($event)"
+                />
+              }
+            </div>
+          } @else {
+            <app-empty-state icon="receipt_long" message="Sin gastos registrados en este periodo" />
+          }
+        </mat-card-content>
+        <mat-card-actions class="justify-end">
+          <a mat-button routerLink="/gastos">
+            <span>Ver todos los gastos</span>
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
+      </mat-card>
+
+      <mat-card class="lg:col-span-2">
+        <mat-card-header>
           <mat-card-title>Gastos por cuenta</mat-card-title>
         </mat-card-header>
         <mat-card-content>

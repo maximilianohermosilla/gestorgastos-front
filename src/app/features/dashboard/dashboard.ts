@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterLink } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption } from 'echarts/core';
 import { forkJoin } from 'rxjs';
@@ -15,9 +16,11 @@ import { RegistroAhorro } from '../../core/models/registro-ahorro';
 import { IngresoService } from '../../core/services/ingreso.service';
 import { RegistroAhorroService } from '../../core/services/registro-ahorro.service';
 import { RegistroService } from '../../core/services/registro.service';
+import { CardRegistro } from '../../shared/components/card-registro/card-registro';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { todayDateOnly } from '../../shared/utils/date';
 import { IngresoDialog } from '../ingresos/ingreso-dialog';
 import { RegistroDialog } from '../gastos/registro-dialog';
 
@@ -35,6 +38,8 @@ interface DatoGrafico {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     NgxEchartsDirective,
+    RouterLink,
+    CardRegistro,
     EmptyState,
     MoneyPipe,
     FormPeriodo,
@@ -96,6 +101,11 @@ export class Dashboard implements OnInit {
       .map(([name, value]) => ({ name, value: Number(value.toFixed(2)) }))
       .sort((a, b) => b.value - a.value);
   });
+
+  /** Últimos gastos del periodo, para la grilla de cards. */
+  readonly gastosRecientes = computed<Registro[]>(() =>
+    [...this.registros()].sort((a, b) => (b.fecha ?? '').localeCompare(a.fecha ?? '')).slice(0, 8),
+  );
 
   readonly donutOption = computed<EChartsCoreOption>(() => ({
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
@@ -235,6 +245,52 @@ export class Dashboard implements OnInit {
         },
         error: () => this.snackbar.open('No se pudo guardar el ingreso', 'Cerrar'),
       });
+    });
+  }
+
+  /** Edición de un gasto desde la grilla de cards. */
+  editarGasto(item: Registro): void {
+    const ref = this.dialog.open(RegistroDialog, { width: '480px', data: { item } });
+    ref.afterClosed().subscribe((res?: Registro) => {
+      if (!res) {
+        return;
+      }
+      this.registroService.update(res).subscribe({
+        next: () => {
+          this.snackbar.open('Gasto actualizado', 'Cerrar');
+          this.cargar();
+        },
+        error: () => this.snackbar.open('No se pudo guardar el gasto', 'Cerrar'),
+      });
+    });
+  }
+
+  /** Marca el gasto como pagado (o viceversa). */
+  togglePagado(item: Registro): void {
+    const pagado = !item.pagado;
+    const payload: Partial<Registro> = {
+      id: item.id,
+      descripcion: item.descripcion,
+      idCategoriaGasto: item.idCategoriaGasto,
+      idCuenta: item.idCuenta,
+      idEmpresa: item.idEmpresa || undefined,
+      idSuscripcion: item.idSuscripcion,
+      idRegistroVinculado: item.idRegistroVinculado,
+      numeroCuota: item.numeroCuota,
+      fecha: item.fecha,
+      valor: item.valor,
+      idUsuario: Number(this.token.getUserId() ?? 0),
+      observaciones: item.observaciones,
+      periodo: item.periodo ?? item.fecha.substring(0, 7),
+      pagado,
+      fechaPago: pagado ? todayDateOnly() : undefined,
+    };
+    this.registroService.update(payload).subscribe({
+      next: () => {
+        this.snackbar.open(pagado ? 'Gasto marcado como pagado' : 'Gasto marcado como pendiente', 'Cerrar');
+        this.cargar();
+      },
+      error: () => this.snackbar.open('No se pudo actualizar el estado', 'Cerrar'),
     });
   }
 
