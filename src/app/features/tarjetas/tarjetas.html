@@ -1,6 +1,9 @@
-<div class="mx-auto max-w-[1000px] p-6">
+<div class="mx-auto max-w-[1000px] p-4 sm:p-6">
   <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
-    <h1 class="text-2xl font-semibold">Tarjetas</h1>
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Tarjetas</h1>
+      <p class="text-sm text-mist-200">Administrá tus tarjetas de crédito y débito.</p>
+    </div>
     <button mat-flat-button color="primary" (click)="abrir()">
       <mat-icon>add</mat-icon>
       <span>Nueva tarjeta</span>
@@ -17,7 +20,7 @@
     </mat-card>
   } @else {
     <mat-card>
-      <table mat-table [dataSource]="paged()" class="w-full">
+      <div class="overflow-x-auto"><table mat-table [dataSource]="paged()" class="w-full min-w-[680px]">
         <ng-container matColumnDef="numero">
           <th mat-header-cell *matHeaderCellDef>Número</th>
           <td mat-cell *matCellDef="let item">{{ item.numero ?? '—' }}</td>
@@ -65,7 +68,7 @@
 
         <tr mat-header-row *matHeaderRowDef="columnas"></tr>
         <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-      </table>
+      </table></div>
       <mat-paginator
         [length]="items().length"
         [pageSize]="pageSize()"

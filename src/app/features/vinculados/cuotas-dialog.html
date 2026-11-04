@@ -3,7 +3,7 @@
   @if (!data.registros.length) {
     <p class="text-mist-200">No hay cuotas registradas.</p>
   } @else {
-    <table mat-table [dataSource]="data.registros" class="w-full">
+    <div class="overflow-x-auto"><table mat-table [dataSource]="data.registros" class="w-full">
       <ng-container matColumnDef="numero">
         <th mat-header-cell *matHeaderCellDef>Cuota</th>
         <td mat-cell *matCellDef="let item">{{ item.numeroCuota ?? '—' }}</td>
@@ -28,7 +28,7 @@
         <th mat-header-cell *matHeaderCellDef class="text-center">Pagado</th>
         <td mat-cell *matCellDef="let item" class="text-center">
           @if (item.pagado) {
-            <mat-icon class="!text-accent">check_circle</mat-icon>
+            <mat-icon class="icon-fill !text-accent">check_circle</mat-icon>
           } @else {
             <mat-icon class="!text-mist-300">radio_button_unchecked</mat-icon>
           }
@@ -37,7 +37,7 @@
 
       <tr mat-header-row *matHeaderRowDef="columnas"></tr>
       <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-    </table>
+    </table></div>
   }
 </mat-dialog-content>
 <mat-dialog-actions align="end">

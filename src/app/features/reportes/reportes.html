@@ -1,6 +1,9 @@
-<div class="mx-auto max-w-[1400px] p-6">
+<div class="mx-auto max-w-[1400px] p-4 sm:p-6">
   <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
-    <h1 class="text-2xl font-semibold">Reportes</h1>
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Reportes</h1>
+      <p class="text-sm text-mist-200">Analizá tus finanzas y exportá los datos.</p>
+    </div>
     <div class="flex flex-wrap items-center gap-3">
       <button mat-stroked-button (click)="exportar()">
         <mat-icon>download</mat-icon>
@@ -9,7 +12,7 @@
     </div>
   </div>
 
-  <div class="mb-4">
+  <div class="mb-4 flex justify-center">
     <app-form-periodo [periodo]="periodo()" (cambio)="onPeriodoChange($event)" />
   </div>
 
@@ -18,38 +21,54 @@
       <mat-progress-spinner mode="indeterminate" diameter="40" />
     </div>
   } @else {
-    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-      <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-mist-200">
-          <mat-icon class="text-income">trending_up</mat-icon>
-          <span>Ingresos</span>
+    <div class="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 md:grid-cols-4">
+      <mat-card class="p-4 sm:p-5">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-income/10 text-income sm:h-10 sm:w-10">
+            <mat-icon>trending_up</mat-icon>
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[0.65rem] font-semibold uppercase tracking-wider text-mist-200 sm:text-xs">Ingresos</p>
+            <p class="mt-1 text-lg font-bold tracking-tight sm:text-2xl">{{ totalIngresos() | money }}</p>
+          </div>
         </div>
-        <div class="mt-2 text-2xl font-semibold">{{ totalIngresos() | money }}</div>
       </mat-card>
 
-      <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-mist-200">
-          <mat-icon class="text-expense">trending_down</mat-icon>
-          <span>Gastos</span>
+      <mat-card class="p-4 sm:p-5">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-expense/10 text-expense sm:h-10 sm:w-10">
+            <mat-icon>trending_down</mat-icon>
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[0.65rem] font-semibold uppercase tracking-wider text-mist-200 sm:text-xs">Gastos</p>
+            <p class="mt-1 text-lg font-bold tracking-tight sm:text-2xl">{{ totalGastos() | money }}</p>
+          </div>
         </div>
-        <div class="mt-2 text-2xl font-semibold">{{ totalGastos() | money }}</div>
       </mat-card>
 
-      <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-mist-200">
-          <mat-icon class="text-savings">savings</mat-icon>
-          <span>Ahorros</span>
+      <mat-card class="p-4 sm:p-5">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-savings/10 text-savings sm:h-10 sm:w-10">
+            <mat-icon>savings</mat-icon>
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[0.65rem] font-semibold uppercase tracking-wider text-mist-200 sm:text-xs">Ahorros</p>
+            <p class="mt-1 text-lg font-bold tracking-tight sm:text-2xl">{{ totalAhorros() | money }}</p>
+          </div>
         </div>
-        <div class="mt-2 text-2xl font-semibold">{{ totalAhorros() | money }}</div>
       </mat-card>
 
-      <mat-card class="p-5">
-        <div class="flex items-center gap-2 text-mist-200">
-          <mat-icon>account_balance_wallet</mat-icon>
-          <span>Balance</span>
-        </div>
-        <div class="mt-2 text-2xl font-semibold" [class.text-expense]="balance() < 0">
-          {{ balance() | money }}
+      <mat-card class="p-4 sm:p-5">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent sm:h-10 sm:w-10">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[0.65rem] font-semibold uppercase tracking-wider text-mist-200 sm:text-xs">Balance</p>
+            <p class="mt-1 text-lg font-bold tracking-tight sm:text-2xl" [class.text-expense]="balance() < 0">
+              {{ balance() | money }}
+            </p>
+          </div>
         </div>
       </mat-card>
     </div>

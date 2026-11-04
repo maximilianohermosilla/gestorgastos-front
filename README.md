@@ -4,15 +4,27 @@ Aplicación Angular para la gestión de gastos personales: **ingresos, gastos, g
 suscripciones, cuentas, tarjetas, ahorros, balance y reportes**.
 
 Consume el backend **`amh-web-api`** (`.NET Core`) sin modificarlo, usando únicamente sus endpoints
-existentes. El detalle de endpoints y decisiones está en [`Plan.md`](./Plan.md).
+existentes. El detalle de endpoints y decisiones está en [`Plan.md`](./Plan.md) y el sistema visual
+en [`REDISENO.md`](./REDISENO.md).
 
 ## Stack
 
 - **Angular 22** (standalone components + signals)
 - **Angular Material 3** (theming por tokens)
-- **Apache ECharts** vía `ngx-echarts`
-- **date-fns**, **xlsx** (export Excel), **@auth0/angular-jwt**
-- State: servicios RxJS + signals
+- **Tailwind CSS v4** (utilidades; el tema Material vive en `styles.scss`)
+- **Apache ECharts** vía `ngx-echarts` (carga lazy)
+- **Plus Jakarta Sans** + **Material Symbols Rounded**
+- **xlsx** (export Excel), **date-fns**, **@auth0/angular-jwt**
+- Tests: **Vitest** (runner nativo de Angular 22)
+
+## Diseño
+
+Sistema **glassmorphism «dark green mist»**:
+
+- Fondo con gradientes radiales verdes difuminados (la «niebla») sobre un verde casi negro (`#071410`).
+- Superficies translúcidas con `backdrop-filter: blur(16px)`, bordes sutiles y sombras suaves.
+- Paleta `mist` (50–950) + semánticos `accent` / `income` / `expense` / `savings` (`@theme` de Tailwind).
+- Iconos de categorías con el color y el ícono que provienen de la base de datos, con contraste automático.
 
 ## Requisitos
 
@@ -33,24 +45,19 @@ de desarrollo.
 
 ## Scripts
 
-| Comando          | Descripción                            |
-| ---------------- | -------------------------------------- |
-| `npm start`      | Servidor de desarrollo                 |
-| `npm run build`  | Build de producción (`dist/`)          |
-| `npm run watch`  | Build de desarrollo en modo watch      |
-| `npm test`       | Tests unitarios (Vitest, sin watch)    |
+| Comando          | Descripción                         |
+| ---------------- | ----------------------------------- |
+| `npm start`      | Servidor de desarrollo              |
+| `npm run build`  | Build de producción (`dist/`)       |
+| `npm run watch`  | Build de desarrollo en modo watch   |
+| `npm test`       | Tests unitarios (Vitest, sin watch) |
 
 ## Estructura
 
 ```
 src/app/
   core/        auth, http, layout (shell), models, services, config
-  shared/      componentes y pipes reutilizables
-  features/    auth (login/perfil), dashboard, (gastos, ingresos, ahorros, ...)
+  shared/      componentes, pipes y utilidades reutilizables
+  features/    auth (login/perfil), dashboard, gastos, ingresos, ahorros,
+               suscripciones, cuotas, cuentas, tarjetas, catalogos, reportes
 ```
-
-## Estado
-
-Funcionalidad completa (auth, dashboard, gastos, suscripciones, cuotas, ingresos, ahorros,
-cuentas, tarjetas, catálogos y reportes con export Excel). ECharts se carga de forma lazy
-para mantener el bundle inicial dentro del presupuesto.

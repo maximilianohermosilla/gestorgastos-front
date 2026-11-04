@@ -41,6 +41,31 @@ background:
   #071410;
 ```
 
+## Tipografía e iconografía
+
+| Recurso | Uso |
+|---|---|
+| **Plus Jakarta Sans** | tipografía de la app (títulos con `tracking-tight`, labels en `uppercase`) |
+| **Material Symbols Rounded** | set de íconos (ligaduras de Material Icons) |
+
+En `styles.scss` se sobrescribe `.mat-icon.mat-icon` (mayor especificidad que el selector de Material)
+para forzar la familia de ligaduras; la variante rellena se activa con la clase `icon-fill`
+(`font-variation-settings: 'FILL' 1`).
+
+> Los íconos de Material fuerzan su propio color, por eso el color se aplica con `!text-*`
+> (Tailwind `!important`) y no con `text-*`.
+
+## Responsive
+
+| Elemento | Móvil (< 640 px) | Escritorio (≥ 640 px) |
+|---|---|---|
+| Padding de página | `p-4` | `p-6` |
+| `form-periodo` | centrado horizontalmente | centrado horizontalmente |
+| Barra de filtros | 2 columnas (buscar a ancho completo) | fila flexible |
+| Montos de resumen | `text-lg` | `text-2xl` |
+| Tablas | scroll horizontal propio (`min-w-[680px]`) | ancho completo |
+| Sidenav | overlay (`BreakpointObserver`) | lateral fijo |
+
 ## Enfoque técnico
 
 1. Tema Material `theme-type: dark` + primario `$green-palette` + terciario `$cyan-palette`.
@@ -57,6 +82,9 @@ background:
 - **C — Gráficos:** colores ECharts (dashboard y reportes).
 - **D — Vistas de datos:** tablas y diálogos ABM.
 - **E — Pulido:** contraste AA, responsive, verificación y build/tests.
+- **F — Etapa 7 (interfaz):** tipografía Plus Jakarta Sans, Material Symbols Rounded, cajas de vidrio,
+  subtítulos de página, tarjetas de resumen con ícono tintado, `form-periodo` centrado, filtros
+  responsive, tablas con scroll horizontal y verificación en navegador de las 11 rutas.
 
 ## Riesgos
 
