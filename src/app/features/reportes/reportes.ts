@@ -72,7 +72,13 @@ export class Reportes implements OnInit {
   /** El periodo puede ser un año ("2026") o un mes ("2026-08"). */
   readonly esMes = computed(() => this.periodo().length === 7);
 
+  /** Nombre del periodo en texto: "mes" o "año". */
+  readonly nombrePeriodo = computed(() => (this.esMes() ? 'mes' : 'año'));
+
   readonly tituloEvolucion = computed(() => (this.esMes() ? 'Detalle del mes' : 'Evolución mensual'));
+
+  /** Etiqueta del balance: se adapta al periodo elegido. */
+  readonly tituloBalance = computed(() => `Balance del ${this.nombrePeriodo()}`);
 
   /** Meses incluidos en el gráfico de evolución según el periodo elegido. */
   private indicesEvolucion(): number[] {

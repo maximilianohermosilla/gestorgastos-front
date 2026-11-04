@@ -91,7 +91,7 @@
           @if (gastosCategoriaData().length) {
             <div echarts [options]="gastosCategoriaOption()" class="h-[300px] w-full"></div>
           } @else {
-            <app-empty-state icon="pie_chart" message="Sin gastos en este año" />
+            <app-empty-state icon="pie_chart" message="Sin gastos en este {{ nombrePeriodo() }}" />
           }
         </mat-card-content>
       </mat-card>
@@ -104,7 +104,7 @@
           @if (gastosCuentaData().length) {
             <div echarts [options]="gastosCuentaOption()" class="h-[300px] w-full"></div>
           } @else {
-            <app-empty-state icon="bar_chart" message="Sin gastos en este año" />
+            <app-empty-state icon="bar_chart" message="Sin gastos en este {{ nombrePeriodo() }}" />
           }
         </mat-card-content>
       </mat-card>
@@ -117,7 +117,7 @@
           @if (ingresosCategoriaData().length) {
             <div echarts [options]="ingresosCategoriaOption()" class="h-[300px] w-full"></div>
           } @else {
-            <app-empty-state icon="pie_chart" message="Sin ingresos en este año" />
+            <app-empty-state icon="pie_chart" message="Sin ingresos en este {{ nombrePeriodo() }}" />
           }
         </mat-card-content>
       </mat-card>
@@ -140,7 +140,7 @@
             <span class="font-semibold">{{ totalAhorros() | money }}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="font-semibold">Balance del año</span>
+            <span class="font-semibold">{{ tituloBalance() }}</span>
             <span class="text-lg font-semibold" [class.text-expense]="balance() < 0">{{ balance() | money }}</span>
           </div>
         </mat-card-content>

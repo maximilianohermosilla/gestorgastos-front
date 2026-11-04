@@ -137,16 +137,48 @@ body {
   .mdc-text-field {
     border-radius: 0 !important;
     background: transparent !important;
+    padding: 0 8px;
   }
 
-  .mdc-text-field__input {
-    text-align: center;
+  /* Campo compacto: label e input en la misma línea, centrados verticalmente */
+  .mdc-text-field--filled {
+    height: 40px;
+  }
+
+  .mat-mdc-form-field {
+    --mat-form-field-container-height: 40px;
+    width: auto;
+    margin: 0 auto;
   }
 
   .mat-mdc-form-field-infix {
-    padding-top: 6px;
-    padding-bottom: 6px;
-    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+  }
+
+  /* El label deja de flotar y queda en línea con el input */
+  .mdc-floating-label {
+    position: static !important;
+    transform: none !important;
+    display: inline-block;
+    flex: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--mat-sys-on-surface-variant, #a5ddc4);
+  }
+
+  .mat-mdc-form-field-input-control {
+    flex: 0 1 auto;
+    width: 6ch;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    flex: 0 0 auto;
   }
 
   .mat-mdc-form-field-subscript-wrapper {
