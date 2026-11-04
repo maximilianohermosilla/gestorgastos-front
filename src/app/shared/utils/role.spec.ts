@@ -1,25 +1,25 @@
-import { esAdministrador, ROL_ADMINISTRADOR } from './role';
+import { esRolAdministrador, ROL_ADMINISTRADOR } from './role';
 
-describe('esAdministrador', () => {
+describe('esRolAdministrador', () => {
   it('reconoce el rol Administrador', () => {
-    expect(esAdministrador('Administrador')).toBe(true);
+    expect(esRolAdministrador('Administrador')).toBe(true);
   });
 
   it('ignora mayúsculas y espacios', () => {
-    expect(esAdministrador('administrador')).toBe(true);
-    expect(esAdministrador('  ADMINISTRADOR  ')).toBe(true);
+    expect(esRolAdministrador('administrador')).toBe(true);
+    expect(esRolAdministrador('  ADMINISTRADOR  ')).toBe(true);
   });
 
   it('rechaza otros roles', () => {
-    expect(esAdministrador('Usuario')).toBe(false);
-    expect(esAdministrador('Super Administrador')).toBe(false);
-    expect(esAdministrador('Admin')).toBe(false);
+    expect(esRolAdministrador('Usuario')).toBe(false);
+    expect(esRolAdministrador('Super Administrador')).toBe(false);
+    expect(esRolAdministrador('Admin')).toBe(false);
   });
 
   it('rechaza roles vacíos o nulos', () => {
-    expect(esAdministrador('')).toBe(false);
-    expect(esAdministrador(null)).toBe(false);
-    expect(esAdministrador(undefined)).toBe(false);
+    expect(esRolAdministrador('')).toBe(false);
+    expect(esRolAdministrador(null)).toBe(false);
+    expect(esRolAdministrador(undefined)).toBe(false);
   });
 
   it('expone el rol de administrador', () => {

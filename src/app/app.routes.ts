@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/auth/admin.guard';
 import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
@@ -50,21 +51,25 @@ export const routes: Routes = [
       },
       {
         path: 'empresas',
+        canActivate: [adminGuard],
         loadComponent: () => import('./features/catalogos/catalogo/catalogo').then((m) => m.Catalogo),
         data: { entity: 'empresa' },
       },
       {
         path: 'bancos',
+        canActivate: [adminGuard],
         loadComponent: () => import('./features/catalogos/catalogo/catalogo').then((m) => m.Catalogo),
         data: { entity: 'banco' },
       },
       {
         path: 'tipos-cuenta',
+        canActivate: [adminGuard],
         loadComponent: () => import('./features/catalogos/catalogo/catalogo').then((m) => m.Catalogo),
         data: { entity: 'tipoCuenta' },
       },
       {
         path: 'tipos-tarjeta',
+        canActivate: [adminGuard],
         loadComponent: () => import('./features/catalogos/catalogo/catalogo').then((m) => m.Catalogo),
         data: { entity: 'tipoTarjeta' },
       },

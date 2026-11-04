@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { esRolAdministrador } from '../../shared/utils/role';
 import { DecodedToken, LoginRequest, LoginResponse } from '../models/jwt';
 import { TokenService } from './token.service';
 
@@ -17,6 +18,12 @@ export class AuthService {
   private readonly _currentUser = signal<DecodedToken | null>(this.readStoredUser());
   readonly currentUser = this._currentUser.asReadonly();
   readonly isAuthenticated = computed(() => this.tokenService.getToken() !== null);
+
+  /** Rol (perfil) del usuario actual. */
+  readonly role = computed(() => this._currentUser()?.role ?? this.tokenService.getAuthorities());
+
+  /** Solo el administrador accede a los catálogos. */
+  readonly esAdministrador = computed(() => esRolAdministrador(this.role()));
 
   private readStoredUser(): DecodedToken | null {
     const token = this.tokenService.getToken();

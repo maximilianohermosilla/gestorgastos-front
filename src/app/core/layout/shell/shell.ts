@@ -9,7 +9,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { esAdministrador } from '../../../shared/utils/role';
 import { AuthService } from '../../auth/auth.service';
 import { TokenService } from '../../auth/token.service';
 
@@ -48,11 +47,8 @@ export class Shell {
 
   readonly isMobile = signal(false);
 
-  /** Rol del usuario actual (claim `role` del token). */
-  readonly role = computed(() => this.auth.currentUser()?.role ?? this.token.getAuthorities());
-
   /** Solo el administrador accede a los catálogos. */
-  readonly esAdministrador = computed(() => esAdministrador(this.role()));
+  readonly esAdministrador = this.auth.esAdministrador;
 
   constructor() {
     this.breakpointObserver.observe(['(max-width: 768px)']).subscribe((r) => this.isMobile.set(r.matches));

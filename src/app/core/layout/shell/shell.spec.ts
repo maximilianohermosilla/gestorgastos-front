@@ -1,6 +1,7 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { esRolAdministrador } from '../../../shared/utils/role';
 import { AuthService } from '../../auth/auth.service';
 import { TokenService } from '../../auth/token.service';
 import { Shell } from './shell';
@@ -13,7 +14,11 @@ describe('Shell', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: { currentUser: currentUser.asReadonly(), logout: () => {} },
+          useValue: {
+            currentUser: currentUser.asReadonly(),
+            esAdministrador: computed(() => esRolAdministrador(currentUser()?.role)),
+            logout: () => {},
+          },
         },
         {
           provide: TokenService,
