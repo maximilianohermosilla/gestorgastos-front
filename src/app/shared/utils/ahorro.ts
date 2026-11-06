@@ -1,28 +1,44 @@
 import { RegistroAhorro } from '../../core/models/registro-ahorro';
 
 /**
- * Devuelve el último registro de ahorro: el más reciente por fecha y, a igual
- * fecha, el de mayor id.
- *
- * Los ahorros no se suman entre sí (cada registro es una foto del saldo
- * acumulado y guarda la variación en `diferencia`), por lo que el valor
- * vigente es el del último registro.
+ * Período ("YYYY-MM") al que pertenece un registro de ahorro.
+ * Si el backend no lo informa, se deriva de la fecha.
  */
-export function ultimoAhorro(registros: RegistroAhorro[]): RegistroAhorro | undefined {
-  if (!registros.length) {
-    return undefined;
+function periodoDe(registro: RegistroAhorro): string {
+  if (registro.periodo) {
+    return registro.periodo;
   }
-  return [...registros].sort((a, b) => {
-    const fechaA = a.fecha ?? '';
-    const fechaB = b.fecha ?? '';
-    if (fechaA !== fechaB) {
-      return fechaB.localeCompare(fechaA);
-    }
-    return (b.id ?? 0) - (a.id ?? 0);
-  })[0];
+  return (registro.fecha ?? '').substring(0, 7);
 }
 
-/** Valor del ahorro vigente (el del último registro) o 0 si no hay registros. */
+/**
+ * Suma de los registros de ahorro del último periodo con datos.
+ *
+ * Los ahorros no se acumulan entre periodos: cada periodo agrupa sus propios
+ * registros (depósitos) y el valor vigente es la suma de los del período más
+ * reciente, no la suma de todo el histórico.
+ */
 export function valorAhorroActual(registros: RegistroAhorro[]): number {
-  return ultimoAhorro(registros)?.valor ?? 0;
+  if (!registros.length) {
+    return 0;
+  }
+  const ultimoPeriodo = registros
+    .map(periodoDe)
+    .filter((p) => !!p)
+    .sort()
+    .pop();
+  if (!ultimoPeriodo) {
+    // Sin período identificable: se suman todos los registros.
+    return registros.reduce((s, a) => s + a.valor, 0);
+  }
+  return registros.filter((a) => periodoDe(a) === ultimoPeriodo).reduce((s, a) => s + a.valor, 0);
+}
+
+/** Período más reciente con registros de ahorro ("YYYY-MM"), o undefined. */
+export function ultimoPeriodoAhorro(registros: RegistroAhorro[]): string | undefined {
+  return registros
+    .map(periodoDe)
+    .filter((p) => !!p)
+    .sort()
+    .pop();
 }
