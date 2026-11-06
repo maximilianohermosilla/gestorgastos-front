@@ -274,24 +274,7 @@ export class Dashboard implements OnInit {
   /** Marca el gasto como pagado (o viceversa). */
   togglePagado(item: Registro): void {
     const pagado = !item.pagado;
-    const payload: Partial<Registro> = {
-      id: item.id,
-      descripcion: item.descripcion,
-      idCategoriaGasto: item.idCategoriaGasto,
-      idCuenta: item.idCuenta,
-      idEmpresa: item.idEmpresa || undefined,
-      idSuscripcion: item.idSuscripcion,
-      idRegistroVinculado: item.idRegistroVinculado,
-      numeroCuota: item.numeroCuota,
-      fecha: item.fecha,
-      valor: item.valor,
-      idUsuario: Number(this.token.getUserId() ?? 0),
-      observaciones: item.observaciones,
-      periodo: item.periodo ?? item.fecha.substring(0, 7),
-      pagado,
-      fechaPago: pagado ? todayDateOnly() : undefined,
-    };
-    this.registroService.update(payload).subscribe({
+    this.registroService.alternarPago(item).subscribe({
       next: () => {
         this.snackbar.open(pagado ? 'Gasto marcado como pagado' : 'Gasto marcado como pendiente', 'Cerrar');
         this.cargar();
@@ -314,12 +297,14 @@ export class Dashboard implements OnInit {
     this.abrirDetalleGastos(`Gastos de ${nombre}`, registros);
   }
 
-  /** Click sobre la barra de "Gastos" del chart comparativo: abre el detalle. */
+  /** Click sobre la barra "Gastos" del chart comparativo: abre el detalle. */
   onComparativaClick(event: ECElementEvent): void {
-    if (String(event.name ?? '') !== 'Gastos') {
-      return;
+    const nombre = String(event.name ?? '');
+    if (nombre === 'Gastos') {
+      this.abrirDetalleGastos('Gastos del periodo', this.registros());
+    } else if (nombre === 'Ingresos') {
+      this.abrirDetalleIngresos('Ingresos del periodo', this.ingresos());
     }
-    this.abrirDetalleGastos('Gastos del periodo', this.registros());
   }
 
   private abrirDetalleGastos(titulo: string, registros: Registro[]): void {
@@ -329,6 +314,31 @@ export class Dashboard implements OnInit {
     });
     ref.componentInstance.editarGasto.subscribe((item) => this.editarGasto(item));
     ref.componentInstance.togglePagado.subscribe((item) => this.togglePagado(item));
+  }
+
+  private abrirDetalleIngresos(titulo: string, ingresos: Ingreso[]): void {
+    const ref = this.dialog.open(DetalleDialog, {
+      width: '640px',
+      data: { titulo, periodo: this.periodo(), tipo: 'ingresos', ingresos },
+    });
+    ref.componentInstance.editarIngreso.subscribe((item) => this.editarIngreso(item));
+  }
+
+  /** Edición de un ingreso desde el detalle. */
+  editarIngreso(item: Ingreso): void {
+    const ref = this.dialog.open(IngresoDialog, { width: '440px', data: { item } });
+    ref.afterClosed().subscribe((res?: Ingreso) => {
+      if (!res) {
+        return;
+      }
+      this.ingresoService.update(res).subscribe({
+        next: () => {
+          this.snackbar.open('Ingreso actualizado', 'Cerrar');
+          this.cargar();
+        },
+        error: () => this.snackbar.open('No se pudo guardar el ingreso', 'Cerrar'),
+      });
+    });
   }
 
   private cargar(): void {

@@ -13,17 +13,21 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator';
 import { CategoriaGasto } from '../../core/models/categoria-gasto';
 import { Cuenta } from '../../core/models/cuenta';
+import { Registro } from '../../core/models/registro';
 import { Suscripcion } from '../../core/models/suscripcion';
 import { CategoriaGastoService } from '../../core/services/categoria-gasto.service';
 import { CuentaService } from '../../core/services/cuenta.service';
+import { RegistroService } from '../../core/services/registro.service';
 import { SuscripcionService } from '../../core/services/suscripcion.service';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { DetalleDialog } from '../../shared/components/detalle-dialog/detalle-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { DateShortPipe } from '../../shared/pipes/date-short.pipe';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { textoContraste } from '../../shared/utils/color';
 import { currentPeriod } from '../../shared/utils/date';
+import { RegistroDialog } from '../gastos/registro-dialog';
 import { SuscripcionDialog } from './suscripcion-dialog';
 
 @Component({
@@ -52,6 +56,7 @@ export class Suscripciones implements OnInit {
   private readonly cuentaService = inject(CuentaService);
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly registroService = inject(RegistroService);
 
   readonly periodo = signal(currentPeriod());
   readonly searchText = signal('');
@@ -162,6 +167,49 @@ export class Suscripciones implements OnInit {
         },
         error: () => this.snackbar.open('No se pudo guardar la suscripción', 'Cerrar'),
       });
+    });
+  }
+
+  /** Detalle de los cargos generados por la suscripción (grilla de cards). */
+  verCargos(item: Suscripcion): void {
+    const ref = this.dialog.open(DetalleDialog, {
+      width: '640px',
+      data: {
+        titulo: item.nombre ?? 'Cargos',
+        tipo: 'gastos',
+        registros: item.registros ?? [],
+      },
+    });
+    ref.componentInstance.editarGasto.subscribe((registro) => this.editarCarga(registro));
+    ref.componentInstance.togglePagado.subscribe((registro) => this.togglePagado(registro));
+  }
+
+  /** Edita un cargo individual desde el detalle. */
+  editarCarga(item: Registro): void {
+    const ref = this.dialog.open(RegistroDialog, { width: '480px', data: { item } });
+    ref.afterClosed().subscribe((res?: Registro) => {
+      if (!res) {
+        return;
+      }
+      this.registroService.update(res).subscribe({
+        next: () => {
+          this.snackbar.open('Carga actualizada', 'Cerrar');
+          this.cargar();
+        },
+        error: () => this.snackbar.open('No se pudo guardar la carga', 'Cerrar'),
+      });
+    });
+  }
+
+  /** Marca un cargo como pagado (o viceversa). */
+  togglePagado(item: Registro): void {
+    const pagado = !item.pagado;
+    this.registroService.alternarPago(item).subscribe({
+      next: () => {
+        this.snackbar.open(pagado ? 'Carga marcada como pagada' : 'Carga marcada como pendiente', 'Cerrar');
+        this.cargar();
+      },
+      error: () => this.snackbar.open('No se pudo actualizar el estado', 'Cerrar'),
     });
   }
 

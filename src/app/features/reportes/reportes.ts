@@ -230,24 +230,7 @@ export class Reportes implements OnInit {
   /** Marca el gasto como pagado (o viceversa). */
   togglePagado(item: Registro): void {
     const pagado = !item.pagado;
-    const payload: Partial<Registro> = {
-      id: item.id,
-      descripcion: item.descripcion,
-      idCategoriaGasto: item.idCategoriaGasto,
-      idCuenta: item.idCuenta,
-      idEmpresa: item.idEmpresa || undefined,
-      idSuscripcion: item.idSuscripcion,
-      idRegistroVinculado: item.idRegistroVinculado,
-      numeroCuota: item.numeroCuota,
-      fecha: item.fecha,
-      valor: item.valor,
-      idUsuario: Number(this.token.getUserId() ?? 0),
-      observaciones: item.observaciones,
-      periodo: item.periodo ?? item.fecha.substring(0, 7),
-      pagado,
-      fechaPago: pagado ? todayDateOnly() : undefined,
-    };
-    this.registroService.update(payload).subscribe({
+    this.registroService.alternarPago(item).subscribe({
       next: () => {
         this.snackbar.open(pagado ? 'Gasto marcado como pagado' : 'Gasto marcado como pendiente', 'Cerrar');
         this.cargar();

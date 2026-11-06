@@ -14,16 +14,19 @@ import { MatPaginatorModule, type PageEvent } from '@angular/material/paginator'
 import { CategoriaGasto } from '../../core/models/categoria-gasto';
 import { Cuenta } from '../../core/models/cuenta';
 import { RegistroVinculado } from '../../core/models/registro-vinculado';
+import { Registro } from '../../core/models/registro';
 import { CategoriaGastoService } from '../../core/services/categoria-gasto.service';
 import { CuentaService } from '../../core/services/cuenta.service';
+import { RegistroService } from '../../core/services/registro.service';
 import { RegistroVinculadoService } from '../../core/services/registro-vinculado.service';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { DetalleDialog } from '../../shared/components/detalle-dialog/detalle-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { textoContraste } from '../../shared/utils/color';
 import { currentPeriod } from '../../shared/utils/date';
-import { CuotasDialog } from './cuotas-dialog';
+import { RegistroDialog } from '../gastos/registro-dialog';
 import { VinculadoDialog } from './vinculado-dialog';
 
 @Component({
@@ -51,6 +54,7 @@ export class Vinculados implements OnInit {
   private readonly cuentaService = inject(CuentaService);
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
+  private readonly registroService = inject(RegistroService);
 
   readonly periodo = signal(currentPeriod());
   readonly searchText = signal('');
@@ -172,10 +176,46 @@ export class Vinculados implements OnInit {
     });
   }
 
+  /** Detalle de las cuotas del gasto en cuotas (grilla de cards). */
   verCuotas(item: RegistroVinculado): void {
-    this.dialog.open(CuotasDialog, {
-      width: '560px',
-      data: { titulo: item.descripcion ?? 'Cuotas', registros: item.registros ?? [] },
+    const ref = this.dialog.open(DetalleDialog, {
+      width: '640px',
+      data: {
+        titulo: item.descripcion ?? 'Cuotas',
+        tipo: 'gastos',
+        registros: item.registros ?? [],
+      },
+    });
+    ref.componentInstance.editarGasto.subscribe((registro) => this.editarCuota(registro));
+    ref.componentInstance.togglePagado.subscribe((registro) => this.togglePagado(registro));
+  }
+
+  /** Edita una cuota individual desde el detalle. */
+  editarCuota(item: Registro): void {
+    const ref = this.dialog.open(RegistroDialog, { width: '480px', data: { item } });
+    ref.afterClosed().subscribe((res?: Registro) => {
+      if (!res) {
+        return;
+      }
+      this.registroService.update(res).subscribe({
+        next: () => {
+          this.snackbar.open('Cuota actualizada', 'Cerrar');
+          this.cargar();
+        },
+        error: () => this.snackbar.open('No se pudo guardar la cuota', 'Cerrar'),
+      });
+    });
+  }
+
+  /** Marca una cuota como pagada (o viceversa). */
+  togglePagado(item: Registro): void {
+    const pagado = !item.pagado;
+    this.registroService.alternarPago(item).subscribe({
+      next: () => {
+        this.snackbar.open(pagado ? 'Cuota marcada como pagada' : 'Cuota marcada como pendiente', 'Cerrar');
+        this.cargar();
+      },
+      error: () => this.snackbar.open('No se pudo actualizar el estado', 'Cerrar'),
     });
   }
 

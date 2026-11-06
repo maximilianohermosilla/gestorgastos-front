@@ -102,13 +102,19 @@
           <th mat-header-cell *matHeaderCellDef class="w-36 whitespace-nowrap !text-center">Acciones</th>
           <td mat-cell *matCellDef="let item" class="whitespace-nowrap text-center">
             <div class="flex flex-nowrap items-center justify-center gap-0.5">
-              <button mat-icon-button (click)="verCuotas(item)" aria-label="Ver cuotas">
+              <button
+                mat-icon-button
+                class="cursor-pointer"
+                (click)="verCuotas(item)"
+                matTooltip="Ver cuotas"
+                aria-label="Ver cuotas"
+              >
                 <mat-icon class="!text-mist-200">visibility</mat-icon>
               </button>
-              <button mat-icon-button (click)="abrir(item)" aria-label="Editar">
+              <button mat-icon-button class="cursor-pointer" (click)="abrir(item)" aria-label="Editar">
                 <mat-icon class="!text-accent">edit</mat-icon>
               </button>
-              <button mat-icon-button (click)="eliminar(item)" aria-label="Eliminar">
+              <button mat-icon-button class="cursor-pointer" (click)="eliminar(item)" aria-label="Eliminar">
                 <mat-icon class="!text-expense">delete</mat-icon>
               </button>
             </div>
