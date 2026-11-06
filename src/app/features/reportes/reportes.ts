@@ -4,9 +4,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption, ECElementEvent } from 'echarts/core';
 import { forkJoin } from 'rxjs';
+import { TokenService } from '../../core/auth/token.service';
 import { Ingreso } from '../../core/models/ingreso';
 import { Registro } from '../../core/models/registro';
 import { RegistroAhorro } from '../../core/models/registro-ahorro';
@@ -19,6 +21,9 @@ import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { valorAhorroActual } from '../../shared/utils/ahorro';
+import { todayDateOnly } from '../../shared/utils/date';
+import { IngresoDialog } from '../ingresos/ingreso-dialog';
+import { RegistroDialog } from '../gastos/registro-dialog';
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
@@ -35,6 +40,7 @@ interface DatoGrafico {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     NgxEchartsDirective,
     EmptyState,
     MoneyPipe,
@@ -48,6 +54,8 @@ export class Reportes implements OnInit {
   private readonly ahorroService = inject(RegistroAhorroService);
   private readonly excel = inject(ExcelService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackbar = inject(MatSnackBar);
+  private readonly token = inject(TokenService);
 
   readonly periodo = signal(String(new Date().getFullYear()));
 
@@ -178,38 +186,83 @@ export class Reportes implements OnInit {
   onIngresosCategoriaClick(event: ECElementEvent): void {
     const nombre = String(event.name ?? '');
     const ingresos = this.ingresos().filter((i) => (i.categoriaIngresoNombre ?? 'Otros') === nombre);
-    this.dialog.open(DetalleDialog, {
+    const ref = this.dialog.open(DetalleDialog, {
       width: '640px',
-      data: {
-        titulo: `Ingresos de ${nombre}`,
-        periodo: this.periodo(),
-        items: ingresos.map((i) => ({
-          fecha: i.fecha,
-          descripcion: i.descripcion ?? '—',
-          categoria: i.categoriaIngresoNombre ?? 'Otros',
-          cuenta: '—',
-          valor: i.valor,
-        })),
+      data: { titulo: `Ingresos de ${nombre}`, periodo: this.periodo(), tipo: 'ingresos', ingresos },
+    });
+    ref.componentInstance.editarIngreso.subscribe((item) => this.editarIngreso(item));
+  }
+
+  /** Edición de un gasto desde el detalle. */
+  editarGasto(item: Registro): void {
+    const ref = this.dialog.open(RegistroDialog, { width: '480px', data: { item } });
+    ref.afterClosed().subscribe((res?: Registro) => {
+      if (!res) {
+        return;
+      }
+      this.registroService.update(res).subscribe({
+        next: () => {
+          this.snackbar.open('Gasto actualizado', 'Cerrar');
+          this.cargar();
+        },
+        error: () => this.snackbar.open('No se pudo guardar el gasto', 'Cerrar'),
+      });
+    });
+  }
+
+  /** Edición de un ingreso desde el detalle. */
+  editarIngreso(item: Ingreso): void {
+    const ref = this.dialog.open(IngresoDialog, { width: '440px', data: { item } });
+    ref.afterClosed().subscribe((res?: Ingreso) => {
+      if (!res) {
+        return;
+      }
+      this.ingresoService.update(res).subscribe({
+        next: () => {
+          this.snackbar.open('Ingreso actualizado', 'Cerrar');
+          this.cargar();
+        },
+        error: () => this.snackbar.open('No se pudo guardar el ingreso', 'Cerrar'),
+      });
+    });
+  }
+
+  /** Marca el gasto como pagado (o viceversa). */
+  togglePagado(item: Registro): void {
+    const pagado = !item.pagado;
+    const payload: Partial<Registro> = {
+      id: item.id,
+      descripcion: item.descripcion,
+      idCategoriaGasto: item.idCategoriaGasto,
+      idCuenta: item.idCuenta,
+      idEmpresa: item.idEmpresa || undefined,
+      idSuscripcion: item.idSuscripcion,
+      idRegistroVinculado: item.idRegistroVinculado,
+      numeroCuota: item.numeroCuota,
+      fecha: item.fecha,
+      valor: item.valor,
+      idUsuario: Number(this.token.getUserId() ?? 0),
+      observaciones: item.observaciones,
+      periodo: item.periodo ?? item.fecha.substring(0, 7),
+      pagado,
+      fechaPago: pagado ? todayDateOnly() : undefined,
+    };
+    this.registroService.update(payload).subscribe({
+      next: () => {
+        this.snackbar.open(pagado ? 'Gasto marcado como pagado' : 'Gasto marcado como pendiente', 'Cerrar');
+        this.cargar();
       },
+      error: () => this.snackbar.open('No se pudo actualizar el estado', 'Cerrar'),
     });
   }
 
   private abrirDetalle(titulo: string, registros: Registro[]): void {
-    this.dialog.open(DetalleDialog, {
+    const ref = this.dialog.open(DetalleDialog, {
       width: '640px',
-      data: {
-        titulo,
-        periodo: this.periodo(),
-        items: registros.map((r) => ({
-          fecha: r.fecha,
-          descripcion: r.descripcion ?? '—',
-          categoria: r.categoriaGastoNombre ?? 'Otros',
-          cuenta: r.cuenta?.nombre ?? 'Sin cuenta',
-          valor: r.valor,
-          pagado: r.pagado,
-        })),
-      },
+      data: { titulo, periodo: this.periodo(), tipo: 'gastos', registros },
     });
+    ref.componentInstance.editarGasto.subscribe((item) => this.editarGasto(item));
+    ref.componentInstance.togglePagado.subscribe((item) => this.togglePagado(item));
   }
 
   onPeriodoChange(p: string): void {

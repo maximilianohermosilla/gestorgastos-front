@@ -323,21 +323,12 @@ export class Dashboard implements OnInit {
   }
 
   private abrirDetalleGastos(titulo: string, registros: Registro[]): void {
-    this.dialog.open(DetalleDialog, {
+    const ref = this.dialog.open(DetalleDialog, {
       width: '640px',
-      data: {
-        titulo,
-        periodo: this.periodo(),
-        items: registros.map((r) => ({
-          fecha: r.fecha,
-          descripcion: r.descripcion ?? '—',
-          categoria: r.categoriaGastoNombre ?? 'Otros',
-          cuenta: r.cuenta?.nombre ?? 'Sin cuenta',
-          valor: r.valor,
-          pagado: r.pagado,
-        })),
-      },
+      data: { titulo, periodo: this.periodo(), tipo: 'gastos', registros },
     });
+    ref.componentInstance.editarGasto.subscribe((item) => this.editarGasto(item));
+    ref.componentInstance.togglePagado.subscribe((item) => this.togglePagado(item));
   }
 
   private cargar(): void {

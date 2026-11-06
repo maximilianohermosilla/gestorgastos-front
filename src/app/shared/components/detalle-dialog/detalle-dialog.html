@@ -6,40 +6,30 @@
 </h2>
 
 <mat-dialog-content>
-  @if (data.items.length) {
-    <div class="overflow-x-auto">
-      <table mat-table [dataSource]="data.items" class="w-full min-w-[560px]">
-        <ng-container matColumnDef="fecha">
-          <th mat-header-cell *matHeaderCellDef>Fecha</th>
-          <td mat-cell *matCellDef="let item">{{ item.fecha | dateShort }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="descripcion">
-          <th mat-header-cell *matHeaderCellDef>Descripción</th>
-          <td mat-cell *matCellDef="let item">{{ item.descripcion }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="categoria">
-          <th mat-header-cell *matHeaderCellDef>Categoría</th>
-          <td mat-cell *matCellDef="let item">{{ item.categoria }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="cuenta">
-          <th mat-header-cell *matHeaderCellDef>Cuenta</th>
-          <td mat-cell *matCellDef="let item">{{ item.cuenta }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="valor">
-          <th mat-header-cell *matHeaderCellDef class="text-right">Valor</th>
-          <td mat-cell *matCellDef="let item" class="text-right font-semibold tabular-nums">{{ item.valor | money }}</td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-      </table>
-    </div>
+  @if (data.tipo === 'gastos') {
+    @if (data.registros?.length) {
+      <div class="flex flex-col gap-2">
+        @for (registro of data.registros; track registro.id) {
+          <app-card-registro
+            [registro]="registro"
+            (editar)="editarGasto.emit($event)"
+            (togglePagado)="togglePagado.emit($event)"
+          />
+        }
+      </div>
+    } @else {
+      <app-empty-state icon="search_off" message="Sin registros para este detalle" />
+    }
   } @else {
-    <app-empty-state icon="search_off" message="Sin registros para este detalle" />
+    @if (data.ingresos?.length) {
+      <div class="flex flex-col gap-2">
+        @for (ingreso of data.ingresos; track ingreso.id) {
+          <app-card-ingreso [registro]="ingreso" (editar)="editarIngreso.emit($event)" />
+        }
+      </div>
+    } @else {
+      <app-empty-state icon="search_off" message="Sin registros para este detalle" />
+    }
   }
 </mat-dialog-content>
 

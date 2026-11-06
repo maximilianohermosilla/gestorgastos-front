@@ -39,6 +39,7 @@
     <div class="flex items-center gap-0.5">
       <button
         mat-icon-button
+        class="cursor-pointer"
         (click)="togglePagado.emit(registro())"
         [matTooltip]="registro().pagado ? 'Marcar como no pagado' : 'Marcar como pagado'"
         [attr.aria-label]="registro().pagado ? 'Marcar como no pagado' : 'Marcar como pagado'"
@@ -50,7 +51,13 @@
         }
       </button>
 
-      <button mat-icon-button (click)="editar.emit(registro())" matTooltip="Editar gasto" aria-label="Editar gasto">
+      <button
+        mat-icon-button
+        class="cursor-pointer"
+        (click)="editar.emit(registro())"
+        matTooltip="Editar gasto"
+        aria-label="Editar gasto"
+      >
         <mat-icon class="!text-accent">edit</mat-icon>
       </button>
     </div>
