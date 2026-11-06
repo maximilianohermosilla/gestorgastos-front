@@ -83,7 +83,7 @@
           <mat-card-title>Ingresos vs. gastos</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div echarts [options]="comparativaOption()" class="h-[300px] w-full"></div>
+          <div echarts [options]="comparativaOption()" (chartClick)="onComparativaClick($event)" class="h-[300px] w-full"></div>
         </mat-card-content>
       </mat-card>
 
@@ -93,7 +93,12 @@
         </mat-card-header>
         <mat-card-content>
           @if (gastosPorCategoria().length) {
-            <div echarts [options]="donutOption()" class="h-[300px] w-full"></div>
+            <div
+              echarts
+              [options]="donutOption()"
+              (chartClick)="onGastosCategoriaClick($event)"
+              class="h-[300px] w-full cursor-pointer"
+            ></div>
           } @else {
             <app-empty-state icon="pie_chart" message="Sin gastos registrados en este periodo" />
           }
@@ -137,7 +142,12 @@
         </mat-card-header>
         <mat-card-content>
           @if (gastosPorCuenta().length) {
-            <div echarts [options]="cuentaOption()" class="h-[300px] w-full"></div>
+            <div
+              echarts
+              [options]="cuentaOption()"
+              (chartClick)="onGastosCuentaClick($event)"
+              class="h-[300px] w-full cursor-pointer"
+            ></div>
           } @else {
             <app-empty-state icon="account_balance" message="Sin gastos registrados en este periodo" />
           }

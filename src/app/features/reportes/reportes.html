@@ -89,7 +89,12 @@
         </mat-card-header>
         <mat-card-content>
           @if (gastosCategoriaData().length) {
-            <div echarts [options]="gastosCategoriaOption()" class="h-[300px] w-full"></div>
+            <div
+              echarts
+              [options]="gastosCategoriaOption()"
+              (chartClick)="onGastosCategoriaClick($event)"
+              class="h-[300px] w-full cursor-pointer"
+            ></div>
           } @else {
             <app-empty-state icon="pie_chart" message="Sin gastos en este {{ nombrePeriodo() }}" />
           }
@@ -102,7 +107,12 @@
         </mat-card-header>
         <mat-card-content>
           @if (gastosCuentaData().length) {
-            <div echarts [options]="gastosCuentaOption()" class="h-[300px] w-full"></div>
+            <div
+              echarts
+              [options]="gastosCuentaOption()"
+              (chartClick)="onGastosCuentaClick($event)"
+              class="h-[300px] w-full cursor-pointer"
+            ></div>
           } @else {
             <app-empty-state icon="bar_chart" message="Sin gastos en este {{ nombrePeriodo() }}" />
           }
@@ -115,7 +125,12 @@
         </mat-card-header>
         <mat-card-content>
           @if (ingresosCategoriaData().length) {
-            <div echarts [options]="ingresosCategoriaOption()" class="h-[300px] w-full"></div>
+            <div
+              echarts
+              [options]="ingresosCategoriaOption()"
+              (chartClick)="onIngresosCategoriaClick($event)"
+              class="h-[300px] w-full cursor-pointer"
+            ></div>
           } @else {
             <app-empty-state icon="pie_chart" message="Sin ingresos en este {{ nombrePeriodo() }}" />
           }

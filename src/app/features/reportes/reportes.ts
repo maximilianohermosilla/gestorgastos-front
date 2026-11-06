@@ -1,10 +1,11 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgxEchartsDirective } from 'ngx-echarts';
-import type { EChartsCoreOption } from 'echarts/core';
+import type { EChartsCoreOption, ECElementEvent } from 'echarts/core';
 import { forkJoin } from 'rxjs';
 import { Ingreso } from '../../core/models/ingreso';
 import { Registro } from '../../core/models/registro';
@@ -13,6 +14,7 @@ import { ExcelService } from '../../core/services/excel.service';
 import { IngresoService } from '../../core/services/ingreso.service';
 import { RegistroAhorroService } from '../../core/services/registro-ahorro.service';
 import { RegistroService } from '../../core/services/registro.service';
+import { DetalleDialog } from '../../shared/components/detalle-dialog/detalle-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
@@ -45,6 +47,7 @@ export class Reportes implements OnInit {
   private readonly ingresoService = inject(IngresoService);
   private readonly ahorroService = inject(RegistroAhorroService);
   private readonly excel = inject(ExcelService);
+  private readonly dialog = inject(MatDialog);
 
   readonly periodo = signal(String(new Date().getFullYear()));
 
@@ -155,6 +158,58 @@ export class Reportes implements OnInit {
 
   ngOnInit(): void {
     this.cargar();
+  }
+
+  /** Click sobre el donut de gastos por categoría: abre el detalle. */
+  onGastosCategoriaClick(event: ECElementEvent): void {
+    const nombre = String(event.name ?? '');
+    const registros = this.registros().filter((r) => (r.categoriaGastoNombre ?? 'Otros') === nombre);
+    this.abrirDetalle(`Gastos de ${nombre}`, registros);
+  }
+
+  /** Click sobre las barras de gastos por cuenta: abre el detalle. */
+  onGastosCuentaClick(event: ECElementEvent): void {
+    const nombre = String(event.name ?? '');
+    const registros = this.registros().filter((r) => (r.cuenta?.nombre ?? 'Sin cuenta') === nombre);
+    this.abrirDetalle(`Gastos de ${nombre}`, registros);
+  }
+
+  /** Click sobre el donut de ingresos por categoría: abre el detalle. */
+  onIngresosCategoriaClick(event: ECElementEvent): void {
+    const nombre = String(event.name ?? '');
+    const ingresos = this.ingresos().filter((i) => (i.categoriaIngresoNombre ?? 'Otros') === nombre);
+    this.dialog.open(DetalleDialog, {
+      width: '640px',
+      data: {
+        titulo: `Ingresos de ${nombre}`,
+        periodo: this.periodo(),
+        items: ingresos.map((i) => ({
+          fecha: i.fecha,
+          descripcion: i.descripcion ?? '—',
+          categoria: i.categoriaIngresoNombre ?? 'Otros',
+          cuenta: '—',
+          valor: i.valor,
+        })),
+      },
+    });
+  }
+
+  private abrirDetalle(titulo: string, registros: Registro[]): void {
+    this.dialog.open(DetalleDialog, {
+      width: '640px',
+      data: {
+        titulo,
+        periodo: this.periodo(),
+        items: registros.map((r) => ({
+          fecha: r.fecha,
+          descripcion: r.descripcion ?? '—',
+          categoria: r.categoriaGastoNombre ?? 'Otros',
+          cuenta: r.cuenta?.nombre ?? 'Sin cuenta',
+          valor: r.valor,
+          pagado: r.pagado,
+        })),
+      },
+    });
   }
 
   onPeriodoChange(p: string): void {

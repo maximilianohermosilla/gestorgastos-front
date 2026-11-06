@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
-import type { EChartsCoreOption } from 'echarts/core';
+import type { EChartsCoreOption, ECElementEvent } from 'echarts/core';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { TokenService } from '../../core/auth/token.service';
@@ -18,6 +18,7 @@ import { IngresoService } from '../../core/services/ingreso.service';
 import { RegistroAhorroService } from '../../core/services/registro-ahorro.service';
 import { RegistroService } from '../../core/services/registro.service';
 import { CardRegistro } from '../../shared/components/card-registro/card-registro';
+import { DetalleDialog } from '../../shared/components/detalle-dialog/detalle-dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
@@ -296,6 +297,46 @@ export class Dashboard implements OnInit {
         this.cargar();
       },
       error: () => this.snackbar.open('No se pudo actualizar el estado', 'Cerrar'),
+    });
+  }
+
+  /** Click sobre el donut de gastos por categoría: abre el detalle. */
+  onGastosCategoriaClick(event: ECElementEvent): void {
+    const nombre = String(event.name ?? '');
+    const registros = this.registros().filter((r) => (r.categoriaGastoNombre ?? 'Otros') === nombre);
+    this.abrirDetalleGastos(`Gastos de ${nombre}`, registros);
+  }
+
+  /** Click sobre las barras de gastos por cuenta: abre el detalle. */
+  onGastosCuentaClick(event: ECElementEvent): void {
+    const nombre = String(event.name ?? '');
+    const registros = this.registros().filter((r) => (r.cuenta?.nombre ?? 'Sin cuenta') === nombre);
+    this.abrirDetalleGastos(`Gastos de ${nombre}`, registros);
+  }
+
+  /** Click sobre la barra de "Gastos" del chart comparativo: abre el detalle. */
+  onComparativaClick(event: ECElementEvent): void {
+    if (String(event.name ?? '') !== 'Gastos') {
+      return;
+    }
+    this.abrirDetalleGastos('Gastos del periodo', this.registros());
+  }
+
+  private abrirDetalleGastos(titulo: string, registros: Registro[]): void {
+    this.dialog.open(DetalleDialog, {
+      width: '640px',
+      data: {
+        titulo,
+        periodo: this.periodo(),
+        items: registros.map((r) => ({
+          fecha: r.fecha,
+          descripcion: r.descripcion ?? '—',
+          categoria: r.categoriaGastoNombre ?? 'Otros',
+          cuenta: r.cuenta?.nombre ?? 'Sin cuenta',
+          valor: r.valor,
+          pagado: r.pagado,
+        })),
+      },
     });
   }
 
