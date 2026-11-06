@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsCoreOption } from 'echarts/core';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../core/auth/auth.service';
 import { TokenService } from '../../core/auth/token.service';
 import { Ingreso } from '../../core/models/ingreso';
 import { Registro } from '../../core/models/registro';
@@ -48,6 +49,7 @@ interface DatoGrafico {
   templateUrl: './dashboard.html',
 })
 export class Dashboard implements OnInit {
+  private readonly auth = inject(AuthService);
   private readonly token = inject(TokenService);
   private readonly registroService = inject(RegistroService);
   private readonly ingresoService = inject(IngresoService);
@@ -55,7 +57,8 @@ export class Dashboard implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackbar = inject(MatSnackBar);
 
-  readonly userName = this.token.getUserName() ?? '';
+  /** Nombre real del usuario (el token solo trae el login). */
+  readonly userName = computed(() => this.auth.perfil()?.nombre ?? this.token.getUserName() ?? '');
   readonly periodo = signal(this.currentPeriod());
   readonly loading = signal(true);
 

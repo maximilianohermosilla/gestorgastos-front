@@ -8,6 +8,7 @@ import { esRolAdministrador } from '../../shared/utils/role';
 import { APP_CONSTANTS } from '../config/app.constants';
 import { cifrarPassword } from '../crypto/cryptography';
 import { DecodedToken, LoginRequest, LoginResponse } from '../models/jwt';
+import { Usuario } from '../models/usuario';
 import { UsuarioService } from '../services/usuario.service';
 import { TokenService } from './token.service';
 
@@ -30,6 +31,10 @@ export class AuthService {
   private readonly _currentUser = signal<DecodedToken | null>(this.readStoredUser());
   readonly currentUser = this._currentUser.asReadonly();
   readonly isAuthenticated = computed(() => this.tokenService.getToken() !== null);
+
+  /** Datos del usuario autenticado (nombre real, correo, perfil). */
+  private readonly _perfil = signal<Usuario | null>(null);
+  readonly perfil = this._perfil.asReadonly();
 
   /** Rol (perfil) del usuario actual. */
   readonly role = computed(() => this._currentUser()?.role ?? this.tokenService.getAuthorities());
@@ -62,12 +67,28 @@ export class AuthService {
     this.tokenService.setUserId(decoded.nameid ?? '');
     this.tokenService.setAuthorities(decoded.role ?? '');
     this._currentUser.set(decoded);
+    // El perfil corresponde al usuario nuevo: se vuelve a cargar.
+    this._perfil.set(null);
     return decoded;
   }
 
   /** Cambio de contraseña (PUT /login). */
   changePassword(body: LoginRequest): Observable<unknown> {
     return this.http.put<unknown>(`${environment.apiUrl}login`, body);
+  }
+
+  /**
+   * Carga los datos del usuario autenticado (el token solo trae el login).
+   * Se hace una sola vez por sesión.
+   */
+  cargarPerfil(): void {
+    if (this._perfil()) {
+      return;
+    }
+    this.usuarioService.getCurrent().subscribe({
+      next: (usuario) => this._perfil.set(usuario),
+      error: () => this._perfil.set(null),
+    });
   }
 
   /**
@@ -101,6 +122,7 @@ export class AuthService {
   logout(): void {
     this.tokenService.logOut();
     this._currentUser.set(null);
+    this._perfil.set(null);
     this.router.navigate(['/login']);
   }
 }

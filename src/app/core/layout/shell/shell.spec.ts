@@ -17,6 +17,7 @@ describe('Shell', () => {
           useValue: {
             currentUser: currentUser.asReadonly(),
             esAdministrador: computed(() => esRolAdministrador(currentUser()?.role)),
+            cargarPerfil: () => {},
             logout: () => {},
           },
         },

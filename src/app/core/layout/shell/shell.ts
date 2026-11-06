@@ -52,6 +52,8 @@ export class Shell {
 
   constructor() {
     this.breakpointObserver.observe(['(max-width: 768px)']).subscribe((r) => this.isMobile.set(r.matches));
+    // El token solo trae el login: se cargan los datos reales del usuario.
+    this.auth.cargarPerfil();
   }
 
   private readonly navGroupsBase: NavGroup[] = [
