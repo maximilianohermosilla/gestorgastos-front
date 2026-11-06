@@ -16,6 +16,7 @@ import { RegistroService } from '../../core/services/registro.service';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { valorAhorroActual } from '../../shared/utils/ahorro';
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
@@ -54,7 +55,8 @@ export class Reportes implements OnInit {
 
   readonly totalIngresos = computed(() => this.ingresos().reduce((s, i) => s + i.valor, 0));
   readonly totalGastos = computed(() => this.registros().reduce((s, r) => s + r.valor, 0));
-  readonly totalAhorros = computed(() => this.ahorros().reduce((s, a) => s + a.valor, 0));
+  /** El ahorro no se suma: se toma el valor del último registro. */
+  readonly ahorroActual = computed(() => valorAhorroActual(this.ahorros()));
   readonly balance = computed(() => this.totalIngresos() - this.totalGastos());
 
   readonly gastosCategoriaData = computed(() =>

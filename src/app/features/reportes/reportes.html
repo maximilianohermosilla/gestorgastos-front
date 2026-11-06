@@ -53,7 +53,7 @@
           </span>
           <div class="min-w-0 flex-1">
             <p class="truncate text-[0.65rem] font-semibold uppercase tracking-wider text-mist-200 sm:text-xs">Ahorros</p>
-            <p class="mt-1 text-lg font-bold tracking-tight sm:text-2xl">{{ totalAhorros() | money }}</p>
+            <p class="mt-1 text-lg font-bold tracking-tight sm:text-2xl">{{ ahorroActual() | money }}</p>
           </div>
         </div>
       </mat-card>
@@ -136,8 +136,8 @@
             <span class="font-semibold">{{ totalGastos() | money }}</span>
           </div>
           <div class="flex items-center justify-between border-b border-white/5 pb-2">
-            <span class="text-mist-200">Total ahorros</span>
-            <span class="font-semibold">{{ totalAhorros() | money }}</span>
+            <span class="text-mist-200">Ahorro actual</span>
+            <span class="font-semibold">{{ ahorroActual() | money }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="font-semibold">{{ tituloBalance() }}</span>

@@ -20,6 +20,7 @@ import { CardRegistro } from '../../shared/components/card-registro/card-registr
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { FormPeriodo } from '../../shared/components/form-periodo/form-periodo';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { valorAhorroActual } from '../../shared/utils/ahorro';
 import { todayDateOnly } from '../../shared/utils/date';
 import { IngresoDialog } from '../ingresos/ingreso-dialog';
 import { RegistroDialog } from '../gastos/registro-dialog';
@@ -70,7 +71,8 @@ export class Dashboard implements OnInit {
 
   readonly totalIngresos = computed(() => this.ingresos().reduce((s, i) => s + i.valor, 0));
   readonly totalGastos = computed(() => this.registros().reduce((s, r) => s + r.valor, 0));
-  readonly totalAhorros = computed(() => this.ahorros().reduce((s, a) => s + a.valor, 0));
+  /** El ahorro no se suma: se toma el valor del último registro. */
+  readonly ahorroActual = computed(() => valorAhorroActual(this.ahorros()));
   readonly balance = computed(() => this.totalIngresos() - this.totalGastos());
 
   readonly gastosPorCategoria = computed(() => {
