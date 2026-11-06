@@ -1,0 +1,80 @@
+<h2 mat-dialog-title>Crear usuario</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="flex min-w-0 flex-col gap-1 pt-2 sm:min-w-[340px]">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <mat-icon matPrefix>badge</mat-icon>
+      <input matInput formControlName="nombre" autocomplete="name" />
+      @if (form.controls.nombre.hasError('required')) {
+        <mat-error>Ingrese su nombre</mat-error>
+      } @else if (form.controls.nombre.hasError('minlength')) {
+        <mat-error>Debe tener al menos 3 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Usuario</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput formControlName="login" autocomplete="username" />
+      @if (form.controls.login.hasError('required')) {
+        <mat-error>Ingrese un nombre de usuario</mat-error>
+      } @else if (form.controls.login.hasError('minlength')) {
+        <mat-error>Debe tener al menos 3 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Correo (opcional)</mat-label>
+      <mat-icon matPrefix>mail</mat-icon>
+      <input matInput type="email" formControlName="correo" autocomplete="email" />
+      @if (form.controls.correo.hasError('email')) {
+        <mat-error>Ingrese un correo válido</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Contraseña</mat-label>
+      <mat-icon matPrefix>lock</mat-icon>
+      <input
+        matInput
+        [type]="hidePassword ? 'password' : 'text'"
+        formControlName="password"
+        autocomplete="new-password"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        tabindex="-1"
+        (click)="hidePassword = !hidePassword"
+        aria-label="Mostrar contraseña"
+      >
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>Ingrese una contraseña</mat-error>
+      } @else if (form.controls.password.hasError('minlength')) {
+        <mat-error>Debe tener al menos 5 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Confirmar contraseña</mat-label>
+      <mat-icon matPrefix>lock_reset</mat-icon>
+      <input matInput type="password" formControlName="passwordConfirm" autocomplete="new-password" />
+      @if (form.controls.passwordConfirm.hasError('required')) {
+        <mat-error>Repita la contraseña</mat-error>
+      }
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="mt-1 text-sm text-expense">{{ error() }}</p>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="ref.close()">Cancelar</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="loading()" (click)="guardar()">
+    {{ loading() ? 'Creando…' : 'Crear usuario' }}
+  </button>
+</mat-dialog-actions>

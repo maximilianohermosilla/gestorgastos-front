@@ -27,4 +27,9 @@ export class UsuarioService {
   update(body: UsuarioRequest): Observable<unknown> {
     return this.http.put<unknown>(this.url, body);
   }
+
+  /** Asocia el usuario a un sistema para que pueda autenticarse en él. */
+  asociarSistema(idUsuario: number, idSistema: number): Observable<unknown> {
+    return this.http.post<unknown>(`${environment.apiUrl}UsuarioSistema`, { id: 0, idUsuario, idSistema });
+  }
 }

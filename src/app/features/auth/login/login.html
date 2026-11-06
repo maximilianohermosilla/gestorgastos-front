@@ -49,6 +49,11 @@
           {{ loading() ? 'Ingresando…' : 'Ingresar' }}
         </button>
       </form>
+
+      <div class="mt-4 flex items-center justify-center gap-1 text-sm text-mist-200">
+        <span>¿No tenés cuenta?</span>
+        <button mat-button type="button" (click)="abrirRegistro()">Registrarse</button>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>

@@ -2,17 +2,29 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { map, Observable } from 'rxjs';
+import { concatMap, from, map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { esRolAdministrador } from '../../shared/utils/role';
+import { APP_CONSTANTS } from '../config/app.constants';
+import { cifrarPassword } from '../crypto/cryptography';
 import { DecodedToken, LoginRequest, LoginResponse } from '../models/jwt';
+import { UsuarioService } from '../services/usuario.service';
 import { TokenService } from './token.service';
+
+/** Datos necesarios para dar de alta un usuario. */
+export interface DatosRegistro {
+  nombre: string;
+  login: string;
+  password: string;
+  correo?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly tokenService = inject(TokenService);
+  private readonly usuarioService = inject(UsuarioService);
   private readonly jwtHelper = new JwtHelperService();
 
   private readonly _currentUser = signal<DecodedToken | null>(this.readStoredUser());
@@ -56,6 +68,34 @@ export class AuthService {
   /** Cambio de contraseña (PUT /login). */
   changePassword(body: LoginRequest): Observable<unknown> {
     return this.http.put<unknown>(`${environment.apiUrl}login`, body);
+  }
+
+  /**
+   * Crea un usuario y lo habilita para el sistema de Gestor de Gastos.
+   * La contraseña se cifra igual que en el backend y, al final, se inicia
+   * sesión automáticamente con las credenciales recién creadas.
+   */
+  registrar(datos: DatosRegistro): Observable<DecodedToken> {
+    return from(cifrarPassword(datos.password)).pipe(
+      concatMap((passwordCifrado) =>
+        this.usuarioService
+          .insert({
+            id: 0,
+            nombre: datos.nombre,
+            login: datos.login,
+            password: passwordCifrado,
+            correo: datos.correo || undefined,
+            habilitado: true,
+            idPerfil: APP_CONSTANTS.ID_PERFIL_USUARIO,
+          })
+          .pipe(
+            concatMap((usuario) => this.usuarioService.asociarSistema(usuario.id, APP_CONSTANTS.ID_SISTEMA)),
+            concatMap(() =>
+              this.login({ login: datos.login, password: datos.password, idSistema: APP_CONSTANTS.ID_SISTEMA }),
+            ),
+          ),
+      ),
+    );
   }
 
   logout(): void {

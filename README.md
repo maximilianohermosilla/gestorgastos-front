@@ -26,6 +26,18 @@ Sistema **glassmorphism «dark green mist»**:
 - Paleta `mist` (50–950) + semánticos `accent` / `income` / `expense` / `savings` (`@theme` de Tailwind).
 - Iconos de categorías con el color y el ícono que provienen de la base de datos, con contraste automático.
 
+## Autenticación
+
+- Ingreso con usuario y contraseña (`POST /login`, sistema `GestorGastos`, `idSistema: 3`).
+- **Alta de usuario** desde la pantalla de login (botón «Registrarse»): crea el usuario
+  (`POST /Usuario`), lo habilita para el sistema (`POST /UsuarioSistema`) e inicia sesión
+  automáticamente. Los usuarios registrados quedan con el perfil «Usuario», por lo que no
+  ven los catálogos (reservados al administrador).
+- El backend guarda las contraseñas cifradas y las vuelve a cifrar al autenticar, así que el
+  frontend replica su algoritmo (AES-256-CBC con clave derivada por PBKDF2) en
+  `src/app/core/crypto/cryptography.ts`. El test `cryptography.spec.ts` fija el resultado
+  esperado contra el valor que produce el backend.
+
 ## Requisitos
 
 - Node.js 20+
@@ -56,8 +68,8 @@ de desarrollo.
 
 ```
 src/app/
-  core/        auth, http, layout (shell), models, services, config
+  core/        auth, crypto, http, layout (shell), models, services, config
   shared/      componentes, pipes y utilidades reutilizables
-  features/    auth (login/perfil), dashboard, gastos, ingresos, ahorros,
+  features/    auth (login/registro/perfil), dashboard, gastos, ingresos, ahorros,
                suscripciones, cuotas, cuentas, tarjetas, catalogos, reportes
 ```
